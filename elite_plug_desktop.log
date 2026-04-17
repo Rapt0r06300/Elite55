@@ -1,0 +1,204 @@
+2026-04-11 22:36:51,936 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-11 22:36:52,303 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-11 22:36:54,044 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-11 22:36:54,044 INFO Lancement du backend embarque sur le port 8899
+2026-04-11 22:36:54,045 INFO BackendServer.run start on port 8899
+2026-04-11 22:36:54,871 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-11 22:36:54,871 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-11 22:36:55,241 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-11 22:44:28,278 INFO Boucle Qt terminee avec code 0
+2026-04-11 22:44:28,278 INFO Arret du backend embarque
+2026-04-11 22:44:28,397 INFO BackendServer.run stop on port 8899
+2026-04-11 22:44:36,492 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-11 22:44:36,847 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-11 22:44:38,583 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-11 22:44:38,583 INFO Lancement du backend embarque sur le port 8899
+2026-04-11 22:44:38,584 INFO BackendServer.run start on port 8899
+2026-04-11 22:44:39,407 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-11 22:44:39,407 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-11 22:44:39,747 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-11 22:59:56,338 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-11 22:59:56,750 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-11 22:59:58,478 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-11 22:59:58,478 INFO Lancement du backend embarque sur le port 8899
+2026-04-11 22:59:58,479 INFO BackendServer.run start on port 8899
+2026-04-11 22:59:59,796 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-11 22:59:59,797 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-11 23:00:00,220 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-11 23:23:02,915 INFO Boucle Qt terminee avec code 0
+2026-04-11 23:23:02,916 INFO Arret du backend embarque
+2026-04-11 23:23:03,046 INFO BackendServer.run stop on port 8899
+2026-04-11 23:23:12,359 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-11 23:23:12,728 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-11 23:23:14,461 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-11 23:23:14,461 INFO Lancement du backend embarque sur le port 8899
+2026-04-11 23:23:14,461 INFO BackendServer.run start on port 8899
+2026-04-11 23:23:15,297 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-11 23:23:15,297 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-11 23:23:15,645 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-11 23:46:17,460 INFO Boucle Qt terminee avec code 0
+2026-04-11 23:46:17,460 INFO Arret du backend embarque
+2026-04-11 23:46:17,583 INFO BackendServer.run stop on port 8899
+2026-04-12 20:27:37,628 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-12 20:27:38,477 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-12 20:27:40,232 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-12 20:27:40,232 INFO Lancement du backend embarque sur le port 8899
+2026-04-12 20:27:40,232 INFO BackendServer.run start on port 8899
+2026-04-12 20:27:42,333 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-12 20:27:42,333 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-12 20:27:42,804 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-12 20:27:50,036 INFO Startup remote seed sync for Ekonir
+2026-04-12 21:09:09,659 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-12 21:09:10,096 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-12 21:09:11,836 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-12 21:09:11,837 INFO Lancement du backend embarque sur le port 8899
+2026-04-12 21:09:11,837 INFO BackendServer.run start on port 8899
+2026-04-12 21:09:14,289 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-12 21:09:14,290 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-12 21:09:16,395 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-12 21:12:52,174 INFO Boucle Qt terminee avec code 0
+2026-04-12 21:12:52,174 INFO Arret du backend embarque
+2026-04-12 21:12:52,309 INFO BackendServer.run stop on port 8899
+2026-04-12 21:23:21,704 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-12 21:23:22,158 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-12 21:23:23,896 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-12 21:23:23,896 INFO Lancement du backend embarque sur le port 8899
+2026-04-12 21:23:23,896 INFO BackendServer.run start on port 8899
+2026-04-12 21:23:25,947 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-12 21:23:25,947 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-12 21:23:26,331 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-12 21:23:33,597 INFO Startup current-market refresh for 3230468096
+2026-04-12 21:42:19,839 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-12 21:42:20,285 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-12 21:42:22,029 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-12 21:42:22,029 INFO Lancement du backend embarque sur le port 8899
+2026-04-12 21:42:22,030 INFO BackendServer.run start on port 8899
+2026-04-12 21:42:24,114 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-12 21:42:24,114 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-12 21:42:24,493 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-12 22:00:55,219 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-12 22:00:55,677 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-12 22:00:57,431 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-12 22:00:57,431 INFO Lancement du backend embarque sur le port 8899
+2026-04-12 22:00:57,432 INFO BackendServer.run start on port 8899
+2026-04-12 22:00:59,510 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-12 22:00:59,510 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-12 22:00:59,868 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-12 22:13:33,693 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-12 22:13:34,140 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-12 22:13:35,892 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-12 22:13:35,892 INFO Lancement du backend embarque sur le port 8899
+2026-04-12 22:13:35,892 INFO BackendServer.run start on port 8899
+2026-04-12 22:13:37,984 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-12 22:13:37,984 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-12 22:13:38,408 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-12 22:13:45,708 INFO Startup current-market refresh for 3230448384
+2026-04-12 22:36:27,973 INFO Boucle Qt terminee avec code 0
+2026-04-12 22:36:27,973 INFO Arret du backend embarque
+2026-04-12 22:36:28,107 WARNING Invalid HTTP request received.
+2026-04-12 22:36:28,107 ERROR Exception in callback _ProactorReadPipeTransport._loop_reading()
+handle: <Handle _ProactorReadPipeTransport._loop_reading()>
+Traceback (most recent call last):
+  File "asyncio\events.py", line 94, in _run
+  File "asyncio\proactor_events.py", line 325, in _loop_reading
+  File "asyncio\proactor_events.py", line 274, in _data_received
+  File "uvicorn\protocols\http\h11_impl.py", line 175, in data_received
+  File "uvicorn\protocols\http\h11_impl.py", line 184, in handle_events
+  File "uvicorn\protocols\http\h11_impl.py", line 307, in send_400_response
+  File "h11\_connection.py", line 538, in send
+  File "h11\_connection.py", line 563, in send_with_data_passthrough
+  File "h11\_connection.py", line 284, in _process_event
+  File "h11\_state.py", line 291, in process_event
+  File "h11\_state.py", line 309, in _fire_event_triggered_transitions
+h11._util.LocalProtocolError: can't handle event type Response when role=SERVER and state=CLOSED
+2026-04-12 22:36:29,592 INFO BackendServer.run stop on port 8899
+2026-04-12 22:36:37,080 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-12 22:36:37,424 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-12 22:36:39,173 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-12 22:36:39,173 INFO Lancement du backend embarque sur le port 8899
+2026-04-12 22:36:39,174 INFO BackendServer.run start on port 8899
+2026-04-12 22:36:41,752 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-12 22:36:41,752 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-12 22:36:42,085 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-12 22:36:49,391 INFO Startup current-market refresh for 4210162179
+2026-04-12 22:49:39,787 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-12 22:49:40,123 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-12 22:49:41,861 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-12 22:49:41,861 INFO Lancement du backend embarque sur le port 8899
+2026-04-12 22:49:41,862 INFO BackendServer.run start on port 8899
+2026-04-12 22:49:43,724 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-12 22:49:43,724 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-12 22:49:44,235 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-12 22:49:51,714 INFO Startup current-market refresh for 4210162179
+2026-04-12 22:56:28,920 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-12 22:56:29,234 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-12 22:56:30,972 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-12 22:56:30,972 INFO Lancement du backend embarque sur le port 8899
+2026-04-12 22:56:30,972 INFO BackendServer.run start on port 8899
+2026-04-12 22:56:33,520 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-12 22:56:33,520 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-12 22:56:33,868 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-12 22:56:41,072 INFO Startup current-market refresh for 4210162179
+2026-04-13 12:39:00,028 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-13 12:39:00,733 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-13 12:39:02,479 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-13 12:39:02,479 INFO Lancement du backend embarque sur le port 8899
+2026-04-13 12:39:02,480 INFO BackendServer.run start on port 8899
+2026-04-13 12:39:04,341 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-13 12:39:04,341 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-13 12:39:04,647 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-13 12:39:12,273 INFO Startup current-market refresh for 4210162179
+2026-04-13 12:44:26,922 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-13 12:44:27,256 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-13 12:44:28,987 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-13 12:44:28,987 INFO Lancement du backend embarque sur le port 8899
+2026-04-13 12:44:28,987 INFO BackendServer.run start on port 8899
+2026-04-13 12:44:31,038 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-13 12:44:31,038 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-13 12:44:31,376 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-13 12:44:38,617 INFO Startup current-market refresh for 4210162179
+2026-04-13 12:58:16,460 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-13 12:58:16,858 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-13 12:58:18,609 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-13 12:58:18,609 INFO Lancement du backend embarque sur le port 8899
+2026-04-13 12:58:18,609 INFO BackendServer.run start on port 8899
+2026-04-13 12:58:19,501 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-13 12:58:19,502 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-13 12:58:19,862 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-13 12:58:27,230 INFO Startup current-market refresh for 4210162179
+2026-04-13 13:00:13,357 INFO Boucle Qt terminee avec code 0
+2026-04-13 13:00:13,357 INFO Arret du backend embarque
+2026-04-13 13:00:16,210 INFO BackendServer.run stop on port 8899
+2026-04-13 13:00:23,785 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-13 13:00:24,224 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-13 13:00:25,977 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-13 13:00:25,977 INFO Lancement du backend embarque sur le port 8899
+2026-04-13 13:00:25,978 INFO BackendServer.run start on port 8899
+2026-04-13 13:00:26,830 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-13 13:00:26,830 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-13 13:00:27,206 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-13 13:00:34,508 INFO Startup current-market refresh for 4210162179
+2026-04-13 13:08:52,853 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-13 13:08:53,248 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-13 13:08:54,995 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-13 13:08:54,995 INFO Lancement du backend embarque sur le port 8899
+2026-04-13 13:08:54,996 INFO BackendServer.run start on port 8899
+2026-04-13 13:08:55,824 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-13 13:08:55,824 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-13 13:08:56,306 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-13 13:09:03,579 INFO Startup remote seed sync for Frigaha
+2026-04-13 15:36:41,688 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-13 16:29:05,216 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-13 16:47:53,650 INFO Boucle Qt terminee avec code 0
+2026-04-13 16:47:53,650 INFO Arret du backend embarque
+2026-04-13 16:47:53,833 INFO BackendServer.run stop on port 8899
+2026-04-13 18:40:12,758 INFO Demarrage desktop dans C:\Users\flo\Desktop\Elite Dangerous - Plug
+2026-04-13 18:40:13,388 INFO Runtime Microsoft detecte (v14.50.35719.00).
+2026-04-13 18:40:15,139 INFO Le port prefere est libre, demarrage du backend embarque
+2026-04-13 18:40:15,139 INFO Lancement du backend embarque sur le port 8899
+2026-04-13 18:40:15,139 INFO BackendServer.run start on port 8899
+2026-04-13 18:40:17,690 INFO Serveur pret sur 8899, bascule vers la fenetre principale
+2026-04-13 18:40:17,690 INFO Ouverture de la fenetre principale via http://127.0.0.1:8899
+2026-04-13 18:40:18,068 INFO Chargement de l'interface depuis http://127.0.0.1:8899
+2026-04-13 20:53:51,293 INFO Boucle Qt terminee avec code 0
+2026-04-13 20:53:51,294 INFO Arret du backend embarque

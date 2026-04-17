@@ -1,0 +1,1 @@
+"""Application Elite Dangerous - Plug."""

@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ app_name }}</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body data-app-mode="commerce">
+    <div class="halo halo-left"></div>
+    <div class="halo halo-right"></div>
+
+    <main class="app-shell">
+      <header class="panel topbar hero-banner">
+        <div class="brand-block">
+          <p class="eyebrow">Assistant commerce Elite Dangerous</p>
+          <h1>Elite55</h1>
+          <p class="lead">
+            Acheter bas, vendre haut, et trouver la station utile sans perdre de temps.
+          </p>
+          <div class="status-row">
+            <span id="player-system-badge" class="badge">Aucune position</span>
+            <span id="local-mode-badge" class="badge">Etat local inconnu</span>
+            <span id="eddn-badge" class="badge badge-warn">EDDN inactif</span>
+            <span id="dataset-badge" class="badge">0 lignes</span>
+          </div>
+          <p class="hero-signature">Codage par Flo</p>
+        </div>
+
+        <div class="action-block">
+          <div id="engine-status-banner" class="engine-banner">
+            <strong>Moteur local</strong>
+            <span id="engine-status-message">Initialisation du moteur trader...</span>
+          </div>
+
+          <details class="fold-panel topbar-tools">
+            <summary>Outils secondaires</summary>
+            <form id="universal-search-form" class="universal-search-form">
+              <label class="smart-field smart-field-wide">
+                <span>Recherche universelle trader</span>
+                <input
+                  id="universal-search-input"
+                  type="text"
+                  placeholder="Systeme, station, marchandise, module, bibliotheque FR..."
+                  autocomplete="off"
+                  data-suggest-scope="universal"
+                  data-track-kind="query"
+                />
+                <small>/ pour chercher, fleches + Tab/Entree pour accepter</small>
+              </label>
+              <button id="btn-universal-go" class="btn btn-primary" type="submit">Appliquer</button>
+            </form>
+
+            <div class="quick-actions">
+              <button id="btn-import" class="btn btn-primary" type="button">Import local complet</button>
+              <button id="btn-sync" class="btn" type="button">Scanner la region</button>
+              <button id="btn-refresh-market" class="btn" type="button">Rafraichir le marche courant</button>
+              <button id="btn-eddn-start" class="btn btn-accent" type="button">Demarrer EDDN</button>
+              <button id="btn-eddn-stop" class="btn btn-muted" type="button">Arreter EDDN</button>
+            </div>
+
+            <div class="preset-row">
+              <button class="preset-chip" type="button" data-scan-distance="20">Scan 20 Ly</button>
+              <button class="preset-chip" type="button" data-scan-distance="40">Scan 40 Ly</button>
+              <button class="preset-chip" type="button" data-scan-distance="80">Scan 80 Ly</button>
+              <button class="preset-chip" type="button" data-route-preset="balanced">Profil equilibre</button>
+              <button class="preset-chip" type="button" data-route-preset="ultra_fresh">Ultra frais</button>
+              <button class="preset-chip" type="button" data-route-preset="bulk">Cargaison lourde</button>
+            </div>
+          </details>
+
+          <div id="hero-metrics" class="metric-grid"></div>
+          <div id="live-refresh-status" class="mini-note">Surveillance locale active.</div>
+        </div>
+      </header>
+
+      <section class="mode-switch-row">
+        <div class="panel mode-switch">
+          <div class="mode-switch-head">
+            <strong>Mode</strong>
+            <span>Basculer vite entre commerce et combat</span>
+          </div>
+          <div class="mode-switch-tabs">
+            <button class="mode-tab active" type="button" data-side-tab="commerce">
+              <span class="mode-tab-title">Commerce</span>
+              <span class="mode-tab-sub">Achat / vente</span>
+            </button>
+            <button class="mode-tab" type="button" data-side-tab="combat">
+              <span class="mode-tab-title">Combat</span>
+              <span class="mode-tab-sub">Munitions / support</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="sidebar">
+          <details class="panel fold-panel memory-panel" data-mode-panel="commerce">
+            <summary>Raccourcis trader</summary>
+            <div class="memory-grid">
+              <section class="memory-block">
+                <h3>Favoris</h3>
+                <div id="memory-favorites" class="pill-grid"></div>
+              </section>
+              <section class="memory-block">
+                <h3>Recents</h3>
+                <div id="memory-recents" class="pill-grid"></div>
+              </section>
+              <section class="memory-block">
+                <h3>Dernieres missions</h3>
+                <div id="memory-missions" class="stack-list"></div>
+              </section>
+              <section class="memory-block">
+                <h3>Profil vaisseau</h3>
+                <div id="ship-profile-summary" class="focus-summary">Profil en attente.</div>
+              </section>
+            </div>
+          </details>
+
+          <details class="panel fold-panel commander-panel">
+            <summary>Position et vaisseau</summary>
+            <div class="section-head">
+              <h2>Commandant</h2>
+              <span class="section-label">Etat local 2 s</span>
+            </div>
+
+            <div id="player-summary" class="stats-grid"></div>
+
+            <div class="control-stack">
+              <div class="control-group">
+                <span>Cargo rapide</span>
+                <div class="chip-row">
+                  <button class="preset-chip" type="button" data-cargo-preset="64">64</button>
+                  <button class="preset-chip" type="button" data-cargo-preset="128">128</button>
+                  <button class="preset-chip" type="button" data-cargo-preset="192">192</button>
+                  <button class="preset-chip" type="button" data-cargo-preset="256">256</button>
+                  <button class="preset-chip" type="button" data-cargo-preset="512">512</button>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <span>Portee rapide</span>
+                <div class="chip-row">
+                  <button class="preset-chip" type="button" data-jump-preset="15">15 Ly</button>
+                  <button class="preset-chip" type="button" data-jump-preset="25">25 Ly</button>
+                  <button class="preset-chip" type="button" data-jump-preset="35">35 Ly</button>
+                  <button class="preset-chip" type="button" data-jump-preset="50">50 Ly</button>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <span>Pad minimal</span>
+                <div class="chip-row">
+                  <button class="preset-chip" type="button" data-pad-preset="S">Petit</button>
+                  <button class="preset-chip" type="button" data-pad-preset="M">Moyen</button>
+                  <button class="preset-chip" type="button" data-pad-preset="L">Grand</button>
+                </div>
+              </div>
+            </div>
+
+            <form id="player-config-form" class="form-grid compact-grid">
+              <label>
+                Cargo cible
+                <input id="cargo-capacity-override" type="number" min="0" step="1" />
+              </label>
+              <label>
+                Portee de saut
+                <input id="jump-range-override" type="number" min="0" step="0.1" />
+              </label>
+              <label>
+                Pad minimal
+                <select id="preferred-pad-size">
+                  <option value="S">Petit</option>
+                  <option value="M">Moyen</option>
+                  <option value="L">Grand</option>
+                </select>
+              </label>
+              <div class="form-actions full-row">
+                <button type="submit" class="btn">Enregistrer</button>
+              </div>
+            </form>
+          </details>
+
+          <article class="panel commodity-panel" data-mode-panel="commerce">
+            <div class="section-head">
+              <h2>Centre commerce</h2>
+              <span class="section-label">Style Inara, mais plus assisté et plus simple</span>
+            </div>
+
+            <div class="commodity-toolbar">
+              <form id="commodity-focus-form" class="search-row">
+                <input
+                  id="commodity-focus-input"
+                  type="text"
+                  placeholder="Or, argent, gallium, tritium, mission..."
+                  autocomplete="off"
+                  data-suggest-scope="commodity"
+                />
+                <button id="btn-focus-commodity" type="submit" class="btn btn-primary">Analyser</button>
+              </form>
+
+              <div class="trade-mode-row">
+                <button id="btn-mode-buy" class="btn trade-mode-btn active" type="button">Acheter</button>
+                <button id="btn-mode-sell" class="btn trade-mode-btn" type="button">Vendre</button>
+              </div>
+            </div>
+
+            <div class="trade-lens-row">
+              <button id="btn-lens-absolute" class="preset-chip active" type="button">Prix absolu</button>
+              <button id="btn-lens-assisted" class="preset-chip" type="button">Execution rapide</button>
+              <button id="btn-commodity-use-current" class="preset-chip" type="button">Depuis ma station</button>
+              <button id="btn-commodity-clear-context" class="preset-chip" type="button">Remettre partout</button>
+            </div>
+
+            <div id="commodity-refine-status" class="mini-note">
+              Origine: partout • Cible: partout
+            </div>
+
+            <details class="advanced-panel commodity-refine-panel">
+              <summary>Affiner simplement</summary>
+              <div class="control-stack">
+                <div class="control-group">
+                  <span>Origine achat</span>
+                  <div class="chip-row">
+                    <button class="preset-chip" type="button" data-commodity-origin-preset="anywhere">Partout</button>
+                    <button class="preset-chip" type="button" data-commodity-origin-preset="current_system">Mon systeme</button>
+                    <button class="preset-chip" type="button" data-commodity-origin-preset="current_station">Ma station</button>
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <span>Cible revente</span>
+                  <div class="chip-row">
+                    <button class="preset-chip" type="button" data-commodity-target-preset="anywhere">Partout</button>
+                    <button class="preset-chip" type="button" data-commodity-target-preset="current_system">Mon systeme</button>
+                    <button class="preset-chip" type="button" data-commodity-target-preset="current_station">Ma station</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-grid compact-grid">
+                <label>
+                  Systeme achat
+                  <input id="commodity-origin-system" type="text" placeholder="Optionnel" autocomplete="off" data-suggest-scope="system" />
+                </label>
+                <label>
+                  Station achat
+                  <input id="commodity-origin-station" type="text" placeholder="Optionnel" autocomplete="off" data-suggest-scope="station" data-suggest-system-source="commodity-origin-system" />
+                </label>
+                <label>
+                  Systeme vente
+                  <input id="commodity-target-system" type="text" placeholder="Optionnel" autocomplete="off" data-suggest-scope="system" />
+                </label>
+                <label>
+                  Station vente
+                  <input id="commodity-target-station" type="text" placeholder="Optionnel" autocomplete="off" data-suggest-scope="station" data-suggest-system-source="commodity-target-system" />
+                </label>
+                <div class="form-actions full-row inline-actions">
+                  <button id="btn-commodity-refine-apply" type="button" class="btn btn-accent">Appliquer</button>
+                  <button id="btn-commodity-refine-reset" type="button" class="btn btn-muted">Reinitialiser</button>
+                </div>
+              </div>
+            </details>
+
+            <div class="chip-row commodity-chip-row">
+              <button class="preset-chip" type="button" data-commodity="gold">Or</button>
+              <button class="preset-chip" type="button" data-commodity="silver">Argent</button>
+              <button class="preset-chip" type="button" data-commodity="gallium">Gallium</button>
+              <button class="preset-chip" type="button" data-commodity="tritium">Tritium</button>
+              <button id="btn-favorite-commodity" class="preset-chip" type="button">Basculer favori</button>
+            </div>
+
+            <div id="commodity-focus-summary" class="focus-summary">
+              Analyse marchandise en attente.
+            </div>
+
+            <div id="commodity-market-strip" class="market-strip"></div>
+            <div id="commodity-decision-grid" class="decision-grid compact-decision-grid"></div>
+            <div id="commodity-quick-cards" class="trade-card-grid"></div>
+
+            <div class="intel-table-grid">
+              <div id="focus-buy-wrap" class="table-wrap compact-table">
+                <table id="focus-buy-table">
+                  <thead>
+                    <tr>
+                      <th>Acheter ici</th>
+                      <th>Prix</th>
+                      <th>Volume</th>
+                      <th>Distance</th>
+                      <th>Fraicheur / confiance</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+
+              <div id="focus-sell-wrap" class="table-wrap compact-table">
+                <table id="focus-sell-table">
+                  <thead>
+                    <tr>
+                      <th>Vendre ici</th>
+                      <th>Prix</th>
+                      <th>Volume</th>
+                      <th>Distance</th>
+                      <th>Fraicheur / confiance</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="table-wrap compact-table">
+              <table id="commodity-route-table">
+                <thead>
+                  <tr>
+                    <th>Meilleur trajet</th>
+                    <th>Prix</th>
+                    <th>Profit</th>
+                    <th>Temps</th>
+                    <th>Confiance</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+            <div id="commodity-sell-offers" class="alternative-grid"></div>
+
+            <details class="advanced-panel commodity-extra-panel">
+              <summary>Historique de prix</summary>
+              <div class="history-card">
+                <div class="section-head compact-head">
+                  <h3>Historique prix</h3>
+                  <span id="commodity-history-badge" class="section-label">Pas encore d'historique</span>
+                </div>
+                <div id="commodity-history" class="history-bars">
+                  <div class="focus-summary">L'historique apparaitra des que plusieurs snapshots seront collectes.</div>
+                </div>
+              </div>
+            </details>
+          </article>
+
+          <details class="panel fold-panel settings-panel" data-mode-panel="commerce">
+            <summary>Reglages avances</summary>
+            <div class="section-head">
+              <h2>Reglages</h2>
+              <span class="section-label">Express puis avance</span>
+            </div>
+
+            <div class="control-stack">
+              <div class="control-group">
+                <span>Profil route</span>
+                <div id="route-preset-row" class="chip-row">
+                  <button class="preset-chip" type="button" data-route-preset="express">Express</button>
+                  <button class="preset-chip" type="button" data-route-preset="balanced">Equilibre</button>
+                  <button class="preset-chip" type="button" data-route-preset="ultra_fresh">Ultra frais</button>
+                  <button class="preset-chip" type="button" data-route-preset="bulk">Lourd</button>
+                </div>
+              </div>
+            </div>
+
+            <details class="advanced-panel">
+              <summary>Reglages avances</summary>
+
+              <div class="settings-grid">
+                <label>
+                  Systeme centre
+                  <input id="center-system" type="text" autocomplete="off" data-suggest-scope="system" />
+                </label>
+                <label>
+                  Rayon Ardent (Ly)
+                  <input id="max-distance" type="number" min="1" max="500" step="1" />
+                </label>
+                <label>
+                  Age max Ardent (jours)
+                  <input id="max-days-ago" type="number" min="1" max="30" step="1" />
+                </label>
+                <label>
+                  Max systemes
+                  <input id="max-systems" type="number" min="1" max="80" step="1" />
+                </label>
+              </div>
+
+              <form id="route-form" class="form-grid compact-grid">
+                <label>
+                  Cargo utilise
+                  <input id="route-cargo-capacity" type="number" min="0" step="1" />
+                </label>
+                <label>
+                  Portee de saut
+                  <input id="route-jump-range" type="number" min="0" step="0.1" />
+                </label>
+                <label>
+                  Age max des donnees (h)
+                  <input id="route-max-age-hours" type="number" min="0.1" step="0.5" />
+                </label>
+                <label>
+                  Distance max station (Ls)
+                  <input id="route-max-station-distance" type="number" min="0" step="50" />
+                </label>
+                <label>
+                  Profit min / unite
+                  <input id="route-min-profit-unit" type="number" min="0" step="100" />
+                </label>
+                <label>
+                  Stock achat min
+                  <input id="route-min-buy-stock" type="number" min="0" step="1" />
+                </label>
+                <label>
+                  Demande revente min
+                  <input id="route-min-sell-demand" type="number" min="0" step="1" />
+                </label>
+                <label>
+                  Pad minimal
+                  <select id="route-min-pad-size">
+                    <option value="S">Petit</option>
+                    <option value="M">Moyen</option>
+                    <option value="L">Grand</option>
+                  </select>
+                </label>
+                <label class="toggle">
+                  <input id="route-include-planetary" type="checkbox" />
+                  Inclure les stations planetaires
+                </label>
+                <label class="toggle">
+                  <input id="route-include-settlements" type="checkbox" />
+                  Inclure les settlements Odyssey
+                </label>
+                <label class="toggle">
+                  <input id="route-include-carriers" type="checkbox" />
+                  Inclure les fleet carriers
+                </label>
+                <label class="toggle">
+                  <input id="route-no-surprise" type="checkbox" />
+                  Mode sans surprise
+                </label>
+                <label>
+                  Nombre de resultats
+                  <input id="route-max-results" type="number" min="5" max="100" step="1" />
+                </label>
+                <div class="form-actions full-row">
+                  <button type="submit" class="btn btn-primary">Recalculer</button>
+                </div>
+              </form>
+            </details>
+          </details>
+        </aside>
+
+        <section class="main-column">
+          <div class="overview-grid compact-overview" data-mode-panel="commerce">
+            <article class="panel spotlight" id="best-route-card"></article>
+            <article class="panel spotlight" id="best-loop-card"></article>
+          </div>
+
+          <article class="panel combat-panel" data-mode-panel="combat">
+            <div class="section-head">
+              <h2>Support combat</h2>
+              <span id="combat-badge" class="section-label">Analyse locale</span>
+            </div>
+            <div id="combat-summary" class="focus-summary">
+              Le mode combat preparera les meilleures stations pour recharger et repartir vite.
+            </div>
+            <div id="combat-cards" class="trade-card-grid"></div>
+            <div class="table-wrap compact-table">
+              <table id="combat-table">
+                <thead>
+                  <tr>
+                    <th>Station utile</th>
+                    <th>Services</th>
+                    <th>Distance</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </article>
+
+          <details class="panel fold-panel decision-panel" data-mode-panel="commerce">
+            <summary>Opportunites immediates</summary>
+            <div class="section-head">
+              <h2>Opportunites immediates</h2>
+              <span class="section-label">Vision rapide du marche</span>
+            </div>
+            <div id="decision-grid" class="decision-grid"></div>
+            <div id="route-view-grid" class="decision-grid compact-decision-grid"></div>
+          </details>
+
+          <details class="panel fold-panel watch-panel" data-mode-panel="commerce">
+            <summary>Surveillance rapide</summary>
+            <div id="watchlist-grid" class="watchlist-grid"></div>
+          </details>
+
+          <details class="panel fold-panel mission-panel" data-mode-panel="commerce">
+            <summary>Mode mission</summary>
+            <div class="section-head">
+              <h2>Mode mission</h2>
+              <span class="section-label">Acheter vite une quantite precise</span>
+            </div>
+
+            <form id="mission-form" class="form-grid compact-grid mission-grid">
+              <label>
+                Marchandise
+                <input id="mission-commodity-query" type="text" placeholder="Or, argent, gallium, tritium..." autocomplete="off" data-suggest-scope="commodity" />
+              </label>
+              <label>
+                Quantite
+                <input id="mission-quantity" type="number" min="1" max="50000" step="1" />
+              </label>
+              <label>
+                Systeme cible
+                <input id="mission-target-system" type="text" placeholder="Optionnel" autocomplete="off" data-suggest-scope="system" />
+              </label>
+              <label>
+                Station cible
+                <input id="mission-target-station" type="text" placeholder="Optionnel" autocomplete="off" data-suggest-scope="station" data-suggest-system-source="mission-target-system" />
+              </label>
+              <div class="form-actions full-row">
+                <button type="submit" class="btn btn-primary">Analyser la mission</button>
+              </div>
+            </form>
+
+            <div id="mission-summary" class="focus-summary">
+              Renseigne une marchandise et une quantite pour obtenir un plan d'achat exploitable.
+            </div>
+
+            <div id="mission-cards" class="trade-card-grid"></div>
+            <div id="mission-alternatives" class="alternative-grid"></div>
+
+            <div class="table-wrap compact-table">
+              <table id="mission-source-table">
+                <thead>
+                  <tr>
+                    <th>Meilleures sources mission</th>
+                    <th>Prix</th>
+                    <th>Couverture</th>
+                    <th>Distance</th>
+                    <th>Confiance</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+            <div class="table-wrap compact-table">
+              <table id="mission-route-table">
+                <thead>
+                  <tr>
+                    <th>Route mission</th>
+                    <th>Cout / marge</th>
+                    <th>Quantite</th>
+                    <th>Temps</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </details>
+
+          <details class="panel fold-panel routes-panel" data-mode-panel="commerce">
+            <summary>Routes completees</summary>
+            <div class="section-head">
+              <h2>Routes aller simple</h2>
+              <span class="section-label">Prix, distance, marge, fraicheur, accessibilite</span>
+            </div>
+            <div class="table-wrap">
+              <table id="routes-table">
+                <thead>
+                  <tr>
+                    <th>Marchandise</th>
+                    <th>Depart</th>
+                    <th>Arrivee</th>
+                    <th>Prix</th>
+                    <th>Profit</th>
+                    <th>Distances</th>
+                    <th>Temps</th>
+                    <th>Fraicheur / confiance</th>
+                    <th>Acces</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </details>
+
+          <details class="panel fold-panel loops-panel" data-mode-panel="commerce">
+            <summary>Boucles aller-retour</summary>
+            <div class="section-head">
+              <h2>Boucles aller-retour</h2>
+              <span class="section-label">Deux sens, sans friction, avec confiance</span>
+            </div>
+            <div class="table-wrap">
+              <table id="loops-table">
+                <thead>
+                  <tr>
+                    <th>Station A</th>
+                    <th>Station B</th>
+                    <th>Aller</th>
+                    <th>Retour</th>
+                    <th>Total</th>
+                    <th>Rythme</th>
+                    <th>Fraicheur / score</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </details>
+
+          <details class="panel fold-panel utility-panel" data-mode-panel="commerce">
+            <summary>Marche courant et sources</summary>
+            <div class="content-grid">
+            <article class="panel">
+              <div class="section-head">
+                <h2>Marche courant</h2>
+                <span id="current-market-badge" class="badge">Aucun marche courant</span>
+              </div>
+              <div class="market-columns">
+                <div>
+                  <h3>Exports detectes</h3>
+                  <ul id="current-exports" class="mini-list"></ul>
+                </div>
+                <div>
+                  <h3>Imports detectes</h3>
+                  <ul id="current-imports" class="mini-list"></ul>
+                </div>
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="section-head">
+                <h2>Fraicheur et sources</h2>
+                <span class="section-label">Local, EDDN, Ardent, Spansh, EDSM</span>
+              </div>
+              <div id="source-status" class="stats-grid"></div>
+              <div id="data-paths" class="mini-note"></div>
+            </article>
+          </div>
+          </details>
+
+          <details class="panel fold-panel knowledge-panel" data-mode-panel="commerce">
+            <summary>Sources et connaissances</summary>
+            <div id="knowledge-list" class="knowledge-list"></div>
+          </details>
+
+          <details class="panel fold-panel library-panel" data-mode-panel="commerce">
+            <summary>Bibliotheque francaise du jeu</summary>
+            <div class="fold-headline">
+              <span id="name-library-badge" class="badge">0 noms</span>
+            </div>
+            <div id="name-library-summary" class="stats-grid"></div>
+            <div id="name-library-types" class="type-pills"></div>
+            <form id="name-search-form" class="search-row">
+              <input
+                id="name-search-input"
+                type="text"
+                placeholder="Chercher une marchandise, un module, un vaisseau ou un materiau..."
+                autocomplete="off"
+                data-suggest-scope="library"
+              />
+              <select id="name-search-type">
+                <option value="">Tous les types</option>
+                <option value="commodity">Marchandises</option>
+                <option value="commodity_category">Categories</option>
+                <option value="module">Modules</option>
+                <option value="ship">Vaisseaux</option>
+                <option value="material">Materiaux</option>
+                <option value="economy">Economies</option>
+                <option value="government">Gouvernements</option>
+                <option value="security">Securite</option>
+                <option value="term">Autres termes</option>
+              </select>
+              <button type="submit" class="btn">Chercher</button>
+              <button id="btn-refresh-names" type="button" class="btn btn-accent">Reconstruire</button>
+            </form>
+            <div class="table-wrap">
+              <table id="name-library-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Cle jeu</th>
+                    <th>Nom francais</th>
+                    <th>Source</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </details>
+        </section>
+      </section>
+
+      <section class="panel status-bar">
+        <div id="status-line">Pret.</div>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

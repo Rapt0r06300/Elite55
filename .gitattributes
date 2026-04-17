@@ -1,0 +1,8 @@
+﻿* text=auto
+
+Elite55.exe filter=lfs diff=lfs merge=lfs -text
+elite_trade.db filter=lfs diff=lfs merge=lfs -text
+build/elite_plug_desktop/Elite55.pkg filter=lfs diff=lfs merge=lfs -text
+dist/Elite55.exe filter=lfs diff=lfs merge=lfs -text
+.venv/Lib/site-packages/PySide6/Qt6WebEngineCore.dll filter=lfs diff=lfs merge=lfs -text
+.venv/Lib/site-packages/PySide6/resources/qtwebengine_devtools_resources.debug.pak filter=lfs diff=lfs merge=lfs -text
