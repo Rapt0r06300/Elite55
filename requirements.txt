@@ -4,3 +4,4 @@ jinja2
 PySide6
 pyzmq
 uvicorn
+
