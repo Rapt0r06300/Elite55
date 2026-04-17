@@ -725,6 +725,11 @@
         runtimeGuardScript.src = `/static/runtime_guard.js?v=${version}`;
         runtimeGuardScript.defer = true;
         document.body.appendChild(runtimeGuardScript);
+
+        const requestSchedulerScript = document.createElement("script");
+        requestSchedulerScript.src = `/static/request_scheduler.js?v=${version}`;
+        requestSchedulerScript.defer = true;
+        document.body.appendChild(requestSchedulerScript);
       })();
     </script>
   </body>
