@@ -3,8 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>{{ app_name }}</title>
-    <link rel="stylesheet" href="/static/style.css" />
+    <script>
+      (function () {
+        const version = Date.now().toString();
+        const stylesheet = document.createElement("link");
+        stylesheet.rel = "stylesheet";
+        stylesheet.href = `/static/style.css?v=${version}`;
+        document.head.appendChild(stylesheet);
+      })();
+    </script>
   </head>
   <body data-app-mode="commerce">
     <div class="halo halo-left"></div>
@@ -510,7 +521,7 @@
               </label>
               <label>
                 Systeme cible
-                <input id="mission-target-system" type="text" placeholder="Optionnel" autocomplete="off" data-suggest-scope="system" />
+                  <input id="mission-target-system" type="text" placeholder="Optionnel" autocomplete="off" data-suggest-scope="system" />
               </label>
               <label>
                 Station cible
@@ -697,7 +708,19 @@
       </section>
     </main>
 
-    <script src="/static/app.js"></script>
-    <script src="/static/ranking_modes.js"></script>
+    <script>
+      (function () {
+        const version = Date.now().toString();
+        const appScript = document.createElement("script");
+        appScript.src = `/static/app.js?v=${version}`;
+        appScript.defer = true;
+        document.body.appendChild(appScript);
+
+        const rankingScript = document.createElement("script");
+        rankingScript.src = `/static/ranking_modes.js?v=${version}`;
+        rankingScript.defer = true;
+        document.body.appendChild(rankingScript);
+      })();
+    </script>
   </body>
 </html>
