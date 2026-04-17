@@ -21,6 +21,10 @@
     return LABELS[mode]?.note || LABELS.profit_hour.note;
   }
 
+  function currentRankingMode() {
+    return LABELS[state.routeRankingMode] ? state.routeRankingMode : "profit_hour";
+  }
+
   function num(value, fallback = 0) {
     const numeric = Number(value);
     return Number.isFinite(numeric) ? numeric : fallback;
@@ -32,96 +36,6 @@
 
   function desc(a, b) {
     return b - a;
-  }
-
-  function compareRoutes(a, b, mode = state.routeRankingMode) {
-    const freshnessA = num(a?.freshness_hours, 999999);
-    const freshnessB = num(b?.freshness_hours, 999999);
-    const confidenceA = num(a?.confidence_score ?? a?.route_score, 0);
-    const confidenceB = num(b?.confidence_score ?? b?.route_score, 0);
-    const totalProfitA = num(a?.trip_profit, 0);
-    const totalProfitB = num(b?.trip_profit, 0);
-    const perHourA = num(a?.profit_per_hour, 0);
-    const perHourB = num(b?.profit_per_hour, 0);
-    const perMinuteA = num(a?.profit_per_minute, 0);
-    const perMinuteB = num(b?.profit_per_minute, 0);
-    const unitProfitA = num(a?.unit_profit, 0);
-    const unitProfitB = num(b?.unit_profit, 0);
-    const minutesA = num(a?.estimated_minutes, 999999);
-    const minutesB = num(b?.estimated_minutes, 999999);
-    const scoreA = num(a?.route_score, 0);
-    const scoreB = num(b?.route_score, 0);
-
-    if (mode === "profit_total") {
-      return (
-        desc(totalProfitA, totalProfitB)
-        || desc(unitProfitA, unitProfitB)
-        || desc(perHourA, perHourB)
-        || desc(confidenceA, confidenceB)
-        || asc(freshnessA, freshnessB)
-        || desc(scoreA, scoreB)
-      );
-    }
-    if (mode === "fast") {
-      return (
-        asc(minutesA, minutesB)
-        || desc(perMinuteA, perMinuteB)
-        || desc(confidenceA, confidenceB)
-        || asc(freshnessA, freshnessB)
-        || desc(totalProfitA, totalProfitB)
-        || desc(scoreA, scoreB)
-      );
-    }
-    if (mode === "fresh") {
-      return (
-        asc(freshnessA, freshnessB)
-        || desc(confidenceA, confidenceB)
-        || desc(scoreA, scoreB)
-        || desc(perHourA, perHourB)
-        || desc(totalProfitA, totalProfitB)
-        || asc(minutesA, minutesB)
-      );
-    }
-    return (
-      desc(perHourA, perHourB)
-      || desc(perMinuteA, perMinuteB)
-      || desc(confidenceA, confidenceB)
-      || asc(freshnessA, freshnessB)
-      || desc(totalProfitA, totalProfitB)
-      || desc(scoreA, scoreB)
-    );
-  }
-
-  function sortRoutesByMode(routes = [], mode = state.routeRankingMode) {
-    return [...(routes || [])].sort((a, b) => compareRoutes(a, b, mode));
-  }
-
-  function compareLoops(a, b, mode = state.routeRankingMode) {
-    const freshnessA = num(a?.freshness_hours, 999999);
-    const freshnessB = num(b?.freshness_hours, 999999);
-    const confidenceA = num(a?.confidence_score ?? a?.route_score, 0);
-    const confidenceB = num(b?.confidence_score ?? b?.route_score, 0);
-    const totalProfitA = num(a?.total_profit, 0);
-    const totalProfitB = num(b?.total_profit, 0);
-    const perHourA = num(a?.profit_per_hour, 0);
-    const perHourB = num(b?.profit_per_hour, 0);
-    const scoreA = num(a?.route_score, 0);
-    const scoreB = num(b?.route_score, 0);
-
-    if (mode === "profit_total") {
-      return desc(totalProfitA, totalProfitB) || desc(perHourA, perHourB) || desc(confidenceA, confidenceB) || asc(freshnessA, freshnessB) || desc(scoreA, scoreB);
-    }
-    if (mode === "fast") {
-      return desc(perHourA, perHourB) || desc(confidenceA, confidenceB) || asc(freshnessA, freshnessB) || desc(totalProfitA, totalProfitB) || desc(scoreA, scoreB);
-    }
-    if (mode === "fresh") {
-      return asc(freshnessA, freshnessB) || desc(confidenceA, confidenceB) || desc(scoreA, scoreB) || desc(perHourA, perHourB) || desc(totalProfitA, totalProfitB);
-    }
-    return desc(perHourA, perHourB) || desc(totalProfitA, totalProfitB) || desc(confidenceA, confidenceB) || asc(freshnessA, freshnessB) || desc(scoreA, scoreB);
-  }
-
-  function sortLoopsByMode(loops = [], mode = state.routeRankingMode) {
-    return [...(loops || [])].sort((a, b) => compareLoops(a, b, mode));
   }
 
   function routeByMetric(routes = [], metric = "profit_per_minute") {
@@ -146,7 +60,7 @@
 
   function applyRankingUi() {
     document.querySelectorAll("[data-route-ranking-mode]").forEach(button => {
-      button.classList.toggle("active", button.getAttribute("data-route-ranking-mode") === state.routeRankingMode);
+      button.classList.toggle("active", button.getAttribute("data-route-ranking-mode") === currentRankingMode());
     });
     const note = document.getElementById("route-ranking-note");
     if (note) note.textContent = `${rankingLabel()} • ${rankingNote()}`;
@@ -196,71 +110,110 @@
     applyRankingUi();
   }
 
-  function setRouteRankingMode(mode) {
+  function withRankingModeInPath(path) {
+    if (!path || typeof path !== "string") return path;
+    const selectedMode = currentRankingMode();
+    if (!selectedMode) return path;
+    if (path.startsWith("/api/commodity-intel") || path.startsWith("/api/dashboard")) {
+      const url = new URL(path, window.location.origin);
+      url.searchParams.set("ranking_mode", selectedMode);
+      return `${url.pathname}${url.search}${url.hash}`;
+    }
+    return path;
+  }
+
+  function withRankingModeInBody(body) {
+    const selectedMode = currentRankingMode();
+    if (!selectedMode) return body;
+    if (!body || typeof body !== "string") return body;
+    try {
+      const parsed = JSON.parse(body);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return body;
+      if (parsed.route && typeof parsed.route === "object") {
+        parsed.route.ranking_mode = selectedMode;
+      }
+      if (parsed.mission && typeof parsed.mission === "object") {
+        parsed.mission.ranking_mode = selectedMode;
+      }
+      parsed.ranking_mode = selectedMode;
+      return JSON.stringify(parsed);
+    } catch (error) {
+      console.warn("ranking-body", error);
+      return body;
+    }
+  }
+
+  const originalApi = api;
+  api = async function (path, options = {}) {
+    const nextOptions = { ...options };
+    const method = String(nextOptions.method || "GET").toUpperCase();
+    const targetPath = withRankingModeInPath(path);
+    if (["POST", "PUT", "PATCH"].includes(method) && typeof nextOptions.body === "string") {
+      if (
+        targetPath.startsWith("/api/routes")
+        || targetPath.startsWith("/api/live-snapshot")
+        || targetPath.startsWith("/api/mission-intel")
+      ) {
+        nextOptions.body = withRankingModeInBody(nextOptions.body);
+      }
+    }
+    return originalApi(targetPath, nextOptions);
+  };
+
+  async function reloadRankingViews() {
+    if (typeof loadLiveSnapshot === "function") {
+      await loadLiveSnapshot({ silent: true, useFormValues: true });
+      return;
+    }
+    if (typeof refreshDashboardFull === "function") {
+      await refreshDashboardFull();
+    }
+  }
+
+  async function setRouteRankingMode(mode) {
     if (!LABELS[mode]) mode = "profit_hour";
+    if (state.routeRankingMode === mode) {
+      applyRankingUi();
+      return;
+    }
     state.routeRankingMode = mode;
     localStorage.setItem(STORAGE_KEY, mode);
     applyRankingUi();
-    if (state.dashboard) renderDashboard(state.dashboard);
-    if (state.commodityIntel) renderCommodityIntel(state.commodityIntel);
-    if (state.missionIntel) renderMissionIntel(state.missionIntel);
-    status(`Classement des routes : ${rankingLabel()}.`);
+    status(`Classement automatique : ${rankingLabel()}.`);
+    try {
+      await reloadRankingViews();
+      status(`Classement automatique appliqué : ${rankingLabel()}.`);
+    } catch (error) {
+      console.error(error);
+      status(`Erreur classement : ${error.message}`);
+    }
   }
-
-  const originalCommodityRouteRows = commodityRouteRows;
-  commodityRouteRows = function (routes = []) {
-    return sortRoutesByMode(originalCommodityRouteRows(routes));
-  };
-
-  const originalRenderRoutes = renderRoutes;
-  renderRoutes = function (routes, dataset) {
-    return originalRenderRoutes(sortRoutesByMode(routes || []), dataset);
-  };
-
-  const originalRenderLoops = renderLoops;
-  renderLoops = function (loops) {
-    return originalRenderLoops(sortLoopsByMode(loops || []));
-  };
 
   const originalRenderDashboard = renderDashboard;
   renderDashboard = function (dashboard) {
-    if (!dashboard) return originalRenderDashboard(dashboard);
-    const cloned = {
-      ...dashboard,
-      routes: sortRoutesByMode(dashboard.routes || []),
-      loops: sortLoopsByMode(dashboard.loops || []),
-    };
-    const result = originalRenderDashboard(cloned);
+    const result = originalRenderDashboard(dashboard);
     applyRankingUi();
     return result;
   };
 
   const originalRenderCommodityIntel = renderCommodityIntel;
   renderCommodityIntel = function (intel) {
-    if (!intel) return originalRenderCommodityIntel(intel);
-    const cloned = {
-      ...intel,
-      best_routes: sortRoutesByMode(intel.best_routes || []),
-    };
-    const result = originalRenderCommodityIntel(cloned);
+    const result = originalRenderCommodityIntel(intel);
     applyRankingUi();
     return result;
   };
 
   const originalRenderMissionIntel = renderMissionIntel;
   renderMissionIntel = function (payload) {
-    if (!payload) return originalRenderMissionIntel(payload);
-    const cloned = {
-      ...payload,
-      best_routes: sortRoutesByMode(payload.best_routes || []),
-    };
-    return originalRenderMissionIntel(cloned);
+    const result = originalRenderMissionIntel(payload);
+    applyRankingUi();
+    return result;
   };
 
   renderHighlights = function (dashboard) {
     const commodityIntel = state.commodityIntel?.resolved ? state.commodityIntel : null;
-    const route = sortRoutesByMode(commodityIntel?.best_routes || dashboard?.routes || [])[0] || null;
-    const loop = sortLoopsByMode(dashboard?.loops || [])[0] || null;
+    const route = commodityIntel?.best_routes?.[0] || dashboard?.routes?.[0] || null;
+    const loop = dashboard?.loops?.[0] || null;
     const quick = commodityIntel?.quick_trade || {};
     const bestBuy = quick.best_buy;
     const bestSell = quick.best_sell;
@@ -283,8 +236,8 @@
     const decisions = commodityIntel?.decision_cards || dashboard.decision_cards || {};
     const quick = commodityIntel?.quick_trade || {};
     const spread = quick.spread;
-    const rankedRoutes = sortRoutesByMode(commodityIntel?.best_routes || dashboard?.routes || []);
-    const primaryRoute = rankedRoutes[0] || null;
+    const rankedRoutes = commodityIntel?.best_routes || dashboard?.routes || [];
+    const primaryRoute = rankedRoutes[0] || decisions.primary_route || null;
     const bestMinuteRoute = routeByMetric(rankedRoutes, "profit_per_minute");
     const freshestRoute = routeByMetric(rankedRoutes, "freshness");
     const quickestRoute = routeByMetric(rankedRoutes, "minutes");
