@@ -720,6 +720,11 @@
         rankingScript.src = `/static/ranking_modes.js?v=${version}`;
         rankingScript.defer = true;
         document.body.appendChild(rankingScript);
+
+        const runtimeGuardScript = document.createElement("script");
+        runtimeGuardScript.src = `/static/runtime_guard.js?v=${version}`;
+        runtimeGuardScript.defer = true;
+        document.body.appendChild(runtimeGuardScript);
       })();
     </script>
   </body>
