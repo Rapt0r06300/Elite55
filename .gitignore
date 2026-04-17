@@ -1,0 +1,44 @@
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Build artifacts
+build/
+dist/
+*.spec
+*.exe
+*.msi
+
+# Logs and temp files
+*.log
+logs/
+*.tmp
+*.temp
+
+# SQLite runtime files
+*.db-shm
+*.db-wal
+*.sqlite-shm
+*.sqlite-wal
+*.db-journal
+
+# Local databases / snapshots
+*.sqlite3
+*.sqlite
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node / frontend caches if added later
+node_modules/
+.npm/
