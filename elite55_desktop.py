@@ -19,11 +19,18 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QToolBar
 import app.main as elite_main
 
 HOST = "127.0.0.1"
-PORT = 8899
-ROOT_URL = f"http://{HOST}:{PORT}"
-HEALTH_URL = f"{ROOT_URL}/api/health"
+PREFERRED_PORT = 8899
+PORT_SEARCH_LIMIT = 40
 WINDOW_TITLE = "Elite55"
 STARTUP_TIMEOUT_SECONDS = 45.0
+
+
+def build_root_url(host: str, port: int) -> str:
+    return f"http://{host}:{port}"
+
+
+def build_health_url(host: str, port: int) -> str:
+    return f"{build_root_url(host, port)}/api/health"
 
 
 def _url_json(url: str, timeout: float = 1.5) -> dict[str, Any] | None:
@@ -39,8 +46,8 @@ def _url_json(url: str, timeout: float = 1.5) -> dict[str, Any] | None:
     return data if isinstance(data, dict) else None
 
 
-def elite55_server_ready() -> bool:
-    data = _url_json(HEALTH_URL)
+def elite55_server_ready(host: str, port: int) -> bool:
+    data = _url_json(build_health_url(host, port))
     return bool(data and data.get("ok") is True)
 
 
@@ -53,9 +60,18 @@ def tcp_port_busy(host: str, port: int) -> bool:
             return False
 
 
+def find_available_port(host: str, preferred_port: int, search_limit: int = PORT_SEARCH_LIMIT) -> int | None:
+    for port in range(preferred_port, preferred_port + max(1, int(search_limit))):
+        if not tcp_port_busy(host, port):
+            return port
+    return None
+
+
 class EliteServerThread(threading.Thread):
-    def __init__(self) -> None:
+    def __init__(self, host: str, port: int) -> None:
         super().__init__(name="elite55-uvicorn", daemon=True)
+        self.host = host
+        self.port = port
         self.failed_error: str | None = None
         self.server: uvicorn.Server | None = None
 
@@ -63,8 +79,8 @@ class EliteServerThread(threading.Thread):
         try:
             config = uvicorn.Config(
                 elite_main.app,
-                host=HOST,
-                port=PORT,
+                host=self.host,
+                port=self.port,
                 reload=False,
                 log_level="info",
             )
@@ -84,6 +100,9 @@ class Elite55Window(QMainWindow):
         super().__init__()
         self.setWindowTitle(WINDOW_TITLE)
         self.resize(1500, 950)
+
+        self.host = HOST
+        self.port = PREFERRED_PORT
 
         self.view = QWebEngineView(self)
         self.setCentralWidget(self.view)
@@ -109,7 +128,7 @@ class Elite55Window(QMainWindow):
         toolbar.addAction(action_reload)
 
         action_home = QAction("Accueil", self)
-        action_home.triggered.connect(lambda: self.view.load(QUrl(ROOT_URL)))
+        action_home.triggered.connect(self._load_home)
         toolbar.addAction(action_home)
 
         self.server_thread: EliteServerThread | None = None
@@ -123,25 +142,35 @@ class Elite55Window(QMainWindow):
 
         self._start_backend_and_wait()
 
+    @property
+    def root_url(self) -> str:
+        return build_root_url(self.host, self.port)
+
+    def _load_home(self) -> None:
+        self.view.load(QUrl(self.root_url))
+
     def _start_backend_and_wait(self) -> None:
-        if elite55_server_ready():
+        if elite55_server_ready(self.host, self.port):
             self.external_server = True
             self.timer.start()
             return
 
-        if tcp_port_busy(HOST, PORT):
-            QMessageBox.critical(
-                self,
-                "Elite55",
-                (
-                    "Le port 8899 est déjà utilisé par un autre programme.\n\n"
-                    "Ferme l'ancien Elite55 ou le programme qui occupe ce port, puis relance l'exécutable."
-                ),
-            )
-            self.close()
-            return
+        if tcp_port_busy(self.host, self.port):
+            free_port = find_available_port(self.host, self.port + 1)
+            if free_port is None:
+                QMessageBox.critical(
+                    self,
+                    "Elite55",
+                    (
+                        "Aucun port libre n'a été trouvé pour démarrer Elite55.\n\n"
+                        "Ferme l'ancien Elite55 ou le programme qui occupe les ports locaux, puis relance l'exécutable."
+                    ),
+                )
+                self.close()
+                return
+            self.port = free_port
 
-        self.server_thread = EliteServerThread()
+        self.server_thread = EliteServerThread(self.host, self.port)
         self.server_thread.start()
         self.timer.start()
 
@@ -156,11 +185,11 @@ class Elite55Window(QMainWindow):
             self.close()
             return
 
-        if elite55_server_ready():
+        if elite55_server_ready(self.host, self.port):
             self.timer.stop()
             if not self.loaded:
                 self.loaded = True
-                self.view.load(QUrl(ROOT_URL))
+                self._load_home()
             return
 
         if time.monotonic() - self.start_monotonic >= STARTUP_TIMEOUT_SECONDS:
