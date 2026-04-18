@@ -107,6 +107,33 @@ def sort_loops_by_mode(loops: list[dict[str, Any]] | None, mode: str | None = No
     return sorted(list(loops or []), key=lambda row: loop_sort_key(row, selected_mode), reverse=True)
 
 
+def select_primary_route(routes: list[dict[str, Any]] | None, mode: str | None = None) -> dict[str, Any] | None:
+    ranked = sort_routes_by_mode(routes, mode)
+    return ranked[0] if ranked else None
+
+
+def select_primary_loop(loops: list[dict[str, Any]] | None, mode: str | None = None) -> dict[str, Any] | None:
+    ranked = sort_loops_by_mode(loops, mode)
+    return ranked[0] if ranked else None
+
+
+def build_route_selection_payload(
+    routes: list[dict[str, Any]] | None,
+    loops: list[dict[str, Any]] | None = None,
+    mode: str | None = None,
+) -> dict[str, Any]:
+    selected_mode = normalize_sort_mode(mode)
+    ranked_routes = sort_routes_by_mode(routes, selected_mode)
+    ranked_loops = sort_loops_by_mode(loops, selected_mode)
+    return {
+        "ranking_mode": selected_mode,
+        "routes": ranked_routes,
+        "loops": ranked_loops,
+        "primary_route": ranked_routes[0] if ranked_routes else None,
+        "primary_loop": ranked_loops[0] if ranked_loops else None,
+    }
+
+
 def route_context_payload(context: RouteContext) -> dict[str, Any]:
     return {
         "request": context.request,
