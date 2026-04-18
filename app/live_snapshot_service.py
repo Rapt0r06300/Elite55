@@ -47,10 +47,19 @@ def build_live_snapshot_payload(elite_main: Any, payload: Any | None = None) -> 
     route_request = snapshot.route or elite_main.default_route_request()
     context = build_route_context(elite_main, route_request)
 
-    dashboard = build_dashboard_payload(elite_main, context.request)
+    dashboard = build_dashboard_payload(
+        elite_main,
+        context.request,
+        context,
+    )
 
     commodity_query = resolve_commodity_query(elite_main, snapshot.commodity_query, context.player)
-    commodity_intel = build_commodity_intel_payload(elite_main, commodity_query, context.request)
+    commodity_intel = build_commodity_intel_payload(
+        elite_main,
+        commodity_query,
+        context.request,
+        context,
+    )
 
     mission_payload = snapshot.mission
     mission_query = commodity_query
@@ -69,6 +78,7 @@ def build_live_snapshot_payload(elite_main: Any, payload: Any | None = None) -> 
         target_system=mission_target_system,
         target_station=mission_target_station,
         route_request=context.request,
+        route_context=context,
     )
     return {
         "dashboard": dashboard,
