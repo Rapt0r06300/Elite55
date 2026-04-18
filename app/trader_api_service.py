@@ -43,6 +43,16 @@ def build_commodity_intel_response(
 ) -> dict[str, Any]:
     remember_commodity_lookup(elite_main, query)
     route_request = build_route_request_with_max_age(elite_main, max_age_hours)
+    payload_builder = getattr(elite_main, "build_commodity_intel_payload", None)
+    if callable(payload_builder):
+        return payload_builder(
+            query,
+            route_request=route_request,
+            origin_system=origin_system,
+            origin_station=origin_station,
+            target_system=target_system,
+            target_station=target_station,
+        )
     return elite_main.build_commodity_intel(
         query,
         elite_main.build_filters(route_request),
@@ -56,13 +66,23 @@ def build_commodity_intel_response(
 def build_mission_intel_response(elite_main: Any, payload: Any) -> dict[str, Any]:
     set_mission_commodity_state(elite_main, payload.commodity_query)
     route_request = build_route_request_with_max_age(elite_main, getattr(payload, "max_age_hours", None))
-    result = elite_main.build_mission_intel(
-        payload.commodity_query,
-        payload.quantity,
-        elite_main.build_filters(route_request),
-        target_system=payload.target_system,
-        target_station=payload.target_station,
-    )
+    payload_builder = getattr(elite_main, "build_mission_intel_payload", None)
+    if callable(payload_builder):
+        result = payload_builder(
+            payload.commodity_query,
+            payload.quantity,
+            target_system=payload.target_system,
+            target_station=payload.target_station,
+            route_request=route_request,
+        )
+    else:
+        result = elite_main.build_mission_intel(
+            payload.commodity_query,
+            payload.quantity,
+            elite_main.build_filters(route_request),
+            target_system=payload.target_system,
+            target_station=payload.target_station,
+        )
     remember_mission_result(elite_main, payload, result)
     return result
 
