@@ -16,6 +16,28 @@ class RouteContext:
 
 DEFAULT_SORT_MODE = "profit_hour"
 ALLOWED_SORT_MODES = {"profit_total", "profit_hour", "fast", "fresh"}
+RANKING_META: dict[str, dict[str, str]] = {
+    "profit_total": {
+        "label": "Profit brut",
+        "title": "Route la plus rentable",
+        "note": "Classe surtout par bénéfice total du trajet.",
+    },
+    "profit_hour": {
+        "label": "Profit / heure",
+        "title": "Route la plus rentable / h",
+        "note": "Classe surtout par rendement horaire réel.",
+    },
+    "fast": {
+        "label": "Trajet rapide",
+        "title": "Route la plus rapide",
+        "note": "Classe surtout par temps estimé et fluidité.",
+    },
+    "fresh": {
+        "label": "Ultra frais",
+        "title": "Route la plus fraîche",
+        "note": "Classe surtout par fraîcheur et confiance des données.",
+    },
+}
 
 
 def resolve_route_request(elite_main: Any, route_request: Any | None = None) -> Any:
@@ -50,6 +72,17 @@ def ensure_route_context(
 def normalize_sort_mode(value: Any) -> str:
     text = str(value or "").strip().lower()
     return text if text in ALLOWED_SORT_MODES else DEFAULT_SORT_MODE
+
+
+def ranking_payload(mode: str | None = None) -> dict[str, str]:
+    selected_mode = normalize_sort_mode(mode)
+    meta = RANKING_META[selected_mode]
+    return {
+        "ranking_mode": selected_mode,
+        "ranking_label": meta["label"],
+        "ranking_title": meta["title"],
+        "ranking_note": meta["note"],
+    }
 
 
 def _num(value: Any, fallback: float = 0.0) -> float:
@@ -151,7 +184,7 @@ def build_ranked_route_views(
     selection = build_route_selection_payload(routes, mode=mode)
     payload = dict(select_route_views(selection["routes"], player) or {})
     payload["primary_route"] = selection["primary_route"]
-    payload["ranking_mode"] = selection["ranking_mode"]
+    payload.update(ranking_payload(selection["ranking_mode"]))
     return payload
 
 
@@ -166,7 +199,7 @@ def build_ranked_decision_cards(
     selection = build_route_selection_payload(routes, loops, mode)
     payload["primary_route"] = selection["primary_route"]
     payload["primary_loop"] = selection["primary_loop"]
-    payload["ranking_mode"] = selection["ranking_mode"]
+    payload.update(ranking_payload(selection["ranking_mode"]))
     return payload
 
 
@@ -179,7 +212,7 @@ def build_ranked_quick_trade(
     payload = dict(quick_trade or {})
     selection = build_route_selection_payload(routes, mode=mode)
     payload["best_route"] = selection["primary_route"]
-    payload["ranking_mode"] = selection["ranking_mode"]
+    payload.update(ranking_payload(selection["ranking_mode"]))
     return payload
 
 
@@ -195,7 +228,7 @@ def build_ranked_analysis_payload(
 ) -> dict[str, Any]:
     selection = build_route_selection_payload(routes, loops, mode)
     return {
-        "ranking_mode": selection["ranking_mode"],
+        **ranking_payload(selection["ranking_mode"]),
         "routes": selection["routes"],
         "loops": selection["loops"],
         "route_views": build_ranked_route_views(
