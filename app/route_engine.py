@@ -14,6 +14,10 @@ class RouteContext:
     player_position: Any
 
 
+DEFAULT_SORT_MODE = "profit_hour"
+ALLOWED_SORT_MODES = {"profit_total", "profit_hour", "fast", "fresh"}
+
+
 def resolve_route_request(elite_main: Any, route_request: Any | None = None) -> Any:
     return route_request or elite_main.default_route_request()
 
@@ -41,6 +45,66 @@ def ensure_route_context(
     route_context: RouteContext | None = None,
 ) -> RouteContext:
     return route_context or build_route_context(elite_main, route_request)
+
+
+def normalize_sort_mode(value: Any) -> str:
+    text = str(value or "").strip().lower()
+    return text if text in ALLOWED_SORT_MODES else DEFAULT_SORT_MODE
+
+
+def _num(value: Any, fallback: float = 0.0) -> float:
+    try:
+        numeric = float(value)
+    except (TypeError, ValueError):
+        return float(fallback)
+    return numeric if numeric == numeric else float(fallback)
+
+
+def route_sort_key(route: dict[str, Any], mode: str) -> tuple[float, ...]:
+    selected_mode = normalize_sort_mode(mode)
+    freshness = _num(route.get("freshness_hours"), 999999)
+    confidence = _num(route.get("confidence_score", route.get("route_score", 0)), 0)
+    total_profit = _num(route.get("trip_profit"), 0)
+    per_hour = _num(route.get("profit_per_hour"), 0)
+    per_minute = _num(route.get("profit_per_minute"), 0)
+    unit_profit = _num(route.get("unit_profit"), 0)
+    minutes = _num(route.get("estimated_minutes"), 999999)
+    score = _num(route.get("route_score"), 0)
+
+    if selected_mode == "profit_total":
+        return (total_profit, unit_profit, per_hour, confidence, -freshness, score)
+    if selected_mode == "fast":
+        return (-minutes, per_minute, confidence, -freshness, total_profit, score)
+    if selected_mode == "fresh":
+        return (-freshness, confidence, score, per_hour, total_profit, -minutes)
+    return (per_hour, per_minute, confidence, -freshness, total_profit, score)
+
+
+def loop_sort_key(loop: dict[str, Any], mode: str) -> tuple[float, ...]:
+    selected_mode = normalize_sort_mode(mode)
+    freshness = _num(loop.get("freshness_hours"), 999999)
+    confidence = _num(loop.get("confidence_score", loop.get("route_score", 0)), 0)
+    total_profit = _num(loop.get("total_profit"), 0)
+    per_hour = _num(loop.get("profit_per_hour"), 0)
+    score = _num(loop.get("route_score"), 0)
+
+    if selected_mode == "profit_total":
+        return (total_profit, per_hour, confidence, -freshness, score)
+    if selected_mode == "fast":
+        return (per_hour, confidence, -freshness, total_profit, score)
+    if selected_mode == "fresh":
+        return (-freshness, confidence, score, per_hour, total_profit)
+    return (per_hour, total_profit, confidence, -freshness, score)
+
+
+def sort_routes_by_mode(routes: list[dict[str, Any]] | None, mode: str | None = None) -> list[dict[str, Any]]:
+    selected_mode = normalize_sort_mode(mode)
+    return sorted(list(routes or []), key=lambda row: route_sort_key(row, selected_mode), reverse=True)
+
+
+def sort_loops_by_mode(loops: list[dict[str, Any]] | None, mode: str | None = None) -> list[dict[str, Any]]:
+    selected_mode = normalize_sort_mode(mode)
+    return sorted(list(loops or []), key=lambda row: loop_sort_key(row, selected_mode), reverse=True)
 
 
 def route_context_payload(context: RouteContext) -> dict[str, Any]:
