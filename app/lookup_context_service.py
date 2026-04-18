@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.lookup_name_service import lookup_names_refresh, lookup_names_search, lookup_names_summary
+
 
 def build_suggest_payload(
     elite_main: Any,
@@ -45,12 +47,12 @@ def toggle_trader_favorite(elite_main: Any, payload: Any) -> dict[str, Any]:
 
 
 def build_refresh_names_payload(elite_main: Any) -> dict[str, Any]:
-    stats = elite_main.name_library_service.refresh()
+    stats = lookup_names_refresh(elite_main)
     return {
         "ok": True,
         "stats": stats,
-        "summary": elite_main.repo.name_library_summary(),
-        "results": elite_main.repo.search_name_library(limit=40),
+        "summary": lookup_names_summary(elite_main),
+        "results": lookup_names_search(elite_main, limit=40),
     }
 
 
@@ -62,6 +64,6 @@ def build_names_payload(
     limit: int = 60,
 ) -> dict[str, Any]:
     return {
-        "summary": elite_main.repo.name_library_summary(),
-        "results": elite_main.repo.search_name_library(query=q, entry_type=entry_type, limit=limit),
+        "summary": lookup_names_summary(elite_main),
+        "results": lookup_names_search(elite_main, query=q, entry_type=entry_type, limit=limit),
     }
