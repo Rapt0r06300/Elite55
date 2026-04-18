@@ -3,6 +3,11 @@ setlocal
 chcp 65001 >nul
 cd /d "%~dp0"
 
+set "BUILD_DIR=build_pyinstaller"
+set "DIST_DIR=dist_build"
+set "SPEC_DIR=build_spec"
+set "FINAL_EXE=%DIST_DIR%\Elite55\Elite55.exe"
+
 echo.
 echo =====================================
 echo   Elite55 - Compilation bureau Windows
@@ -50,20 +55,23 @@ taskkill /F /IM "Elite55.exe" >nul 2>nul
 taskkill /F /IM "Elite Dangerous - Plug.exe" >nul 2>nul
 timeout /t 1 /nobreak >nul
 
-echo [5/7] Nettoyage des anciens dossiers build et dist...
-if exist "build" rmdir /s /q "build"
-if exist "dist\Elite55" rmdir /s /q "dist\Elite55"
-if exist "dist\Elite55" goto :dist_locked
+echo [5/7] Nettoyage des anciens dossiers de compilation temporaires...
+if exist "%BUILD_DIR%" rmdir /s /q "%BUILD_DIR%"
+if exist "%DIST_DIR%" rmdir /s /q "%DIST_DIR%"
+if exist "%SPEC_DIR%" rmdir /s /q "%SPEC_DIR%"
+if exist "%BUILD_DIR%" goto :temp_locked
+if exist "%DIST_DIR%" goto :temp_locked
+if exist "%SPEC_DIR%" goto :temp_locked
 if exist "Elite55.spec" del /q "Elite55.spec"
 if exist "Elite Dangerous - Plug.spec" del /q "Elite Dangerous - Plug.spec"
 
 echo [6/7] Compilation de l'exécutable bureau...
-"%PYTHON%" -m PyInstaller --noconfirm --clean --windowed --onedir --name "Elite55" --add-data "app\static;app\static" --add-data "app\templates;app\templates" --hidden-import sitecustomize --hidden-import app.trade_ranking --hidden-import app.live_snapshot_backend --hidden-import app.live_snapshot_service --hidden-import app.commodity_intel_service --hidden-import app.mission_intel_service --hidden-import app.dashboard_service --hidden-import PySide6.QtWebEngineCore --hidden-import PySide6.QtWebEngineWidgets elite55_desktop.py
+"%PYTHON%" -m PyInstaller --noconfirm --clean --windowed --onedir --name "Elite55" --distpath "%DIST_DIR%" --workpath "%BUILD_DIR%" --specpath "%SPEC_DIR%" --add-data "app\static;app\static" --add-data "app\templates;app\templates" --hidden-import sitecustomize --hidden-import app.trade_ranking --hidden-import app.live_snapshot_backend --hidden-import app.live_snapshot_service --hidden-import app.commodity_intel_service --hidden-import app.mission_intel_service --hidden-import app.dashboard_service --hidden-import PySide6.QtWebEngineCore --hidden-import PySide6.QtWebEngineWidgets elite55_desktop.py
 if errorlevel 1 goto :error
 
 if exist "elite_trade.db" (
-    echo [7/7] Copie de la base locale dans le dossier dist...
-    copy /Y "elite_trade.db" "dist\Elite55\elite_trade.db" >nul
+    echo [7/7] Copie de la base locale dans le dossier compilé...
+    copy /Y "elite_trade.db" "%DIST_DIR%\Elite55\elite_trade.db" >nul
 ) else (
     echo [7/7] Aucune base locale à copier, le logiciel la créera si nécessaire.
 )
@@ -71,22 +79,20 @@ if exist "elite_trade.db" (
 echo.
 echo ==========================================
 echo Compilation terminée avec succès.
-echo Exécutable : dist\Elite55\Elite55.exe
+echo Exécutable : %FINAL_EXE%
 echo ==========================================
 echo.
-start "" explorer "dist\Elite55"
+start "" explorer "%DIST_DIR%\Elite55"
 pause
 goto :end
 
-:dist_locked
+:temp_locked
 echo.
-echo [ERREUR] Impossible de nettoyer dist\Elite55.
-echo Un ancien Elite55.exe ou un fichier du dossier dist est encore ouvert.
-echo.
+echo [ERREUR] Impossible de nettoyer les dossiers temporaires de compilation.
 echo Ferme :
 echo - Elite55
-echo - toute fenêtre ouverte sur dist\Elite55
-echo - et relance ensuite build_exe.cmd
+echo - toute fenêtre ouverte sur build_pyinstaller, dist_build ou build_spec
+echo - puis relance build_exe.cmd
 echo.
 pause
 goto :end
