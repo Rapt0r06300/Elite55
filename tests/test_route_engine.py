@@ -6,9 +6,12 @@ import unittest
 from app.route_engine import (
     RouteContext,
     build_route_context,
+    build_route_selection_payload,
     ensure_route_context,
     resolve_route_request,
     route_context_payload,
+    select_primary_loop,
+    select_primary_route,
 )
 
 
@@ -72,6 +75,35 @@ class RouteEngineTests(unittest.TestCase):
         )
         resolved = ensure_route_context(elite, route_context=existing)
         self.assertIs(resolved, existing)
+
+    def test_select_primary_route_prefers_best_hourly_result(self) -> None:
+        routes = [
+            {"commodity_name": "Gold", "trip_profit": 90000, "profit_per_hour": 1200000, "profit_per_minute": 20000, "unit_profit": 1500, "estimated_minutes": 6, "freshness_hours": 2, "confidence_score": 70, "route_score": 72},
+            {"commodity_name": "Silver", "trip_profit": 150000, "profit_per_hour": 1000000, "profit_per_minute": 16000, "unit_profit": 1800, "estimated_minutes": 9, "freshness_hours": 1, "confidence_score": 80, "route_score": 81},
+        ]
+        primary = select_primary_route(routes, "profit_hour")
+        self.assertEqual(primary["commodity_name"], "Gold")
+
+    def test_select_primary_loop_prefers_fresh_loop_when_requested(self) -> None:
+        loops = [
+            {"from_station": "A", "to_station": "B", "total_profit": 300000, "profit_per_hour": 900000, "freshness_hours": 5.0, "confidence_score": 75, "route_score": 77},
+            {"from_station": "C", "to_station": "D", "total_profit": 220000, "profit_per_hour": 950000, "freshness_hours": 0.4, "confidence_score": 86, "route_score": 88},
+        ]
+        primary = select_primary_loop(loops, "fresh")
+        self.assertEqual(primary["from_station"], "C")
+
+    def test_build_route_selection_payload_returns_ranked_results(self) -> None:
+        routes = [
+            {"commodity_name": "Slow", "trip_profit": 180000, "profit_per_hour": 900000, "profit_per_minute": 15000, "unit_profit": 1900, "estimated_minutes": 12, "freshness_hours": 0.5, "confidence_score": 90, "route_score": 91},
+            {"commodity_name": "Quick", "trip_profit": 100000, "profit_per_hour": 950000, "profit_per_minute": 25000, "unit_profit": 1100, "estimated_minutes": 4, "freshness_hours": 1.0, "confidence_score": 80, "route_score": 85},
+        ]
+        loops = [
+            {"from_station": "X", "to_station": "Y", "total_profit": 100000, "profit_per_hour": 700000, "freshness_hours": 1.0, "confidence_score": 70, "route_score": 70},
+        ]
+        payload = build_route_selection_payload(routes, loops, "fast")
+        self.assertEqual(payload["ranking_mode"], "fast")
+        self.assertEqual(payload["primary_route"]["commodity_name"], "Quick")
+        self.assertEqual(payload["primary_loop"]["from_station"], "X")
 
     def test_route_context_payload_exposes_expected_keys(self) -> None:
         elite = self._elite()
