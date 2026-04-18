@@ -41,3 +41,4 @@ else:
     _install_step("API dashboard", "app.dashboard_api_service.install_dashboard_api_service_patches", elite_main)
     _install_step("API trader", "app.trader_api_service.install_trader_api_service_patches", elite_main)
     _install_step("API sources", "app.source_api_service.install_source_api_service_patches", elite_main)
+    _install_step("API recherche", "app.lookup_api_service.install_lookup_api_service_patches", elite_main)
