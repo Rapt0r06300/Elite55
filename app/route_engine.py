@@ -35,6 +35,14 @@ def build_route_context(elite_main: Any, route_request: Any | None = None) -> Ro
     )
 
 
+def ensure_route_context(
+    elite_main: Any,
+    route_request: Any | None = None,
+    route_context: RouteContext | None = None,
+) -> RouteContext:
+    return route_context or build_route_context(elite_main, route_request)
+
+
 def route_context_payload(context: RouteContext) -> dict[str, Any]:
     return {
         "request": context.request,
