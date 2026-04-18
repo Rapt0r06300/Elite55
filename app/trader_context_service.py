@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.trade_query_service import build_route_request_with_max_age
+
 
 def normalize_commodity_value(elite_main: Any, value: str | None) -> str | None:
     if value is None:
@@ -22,13 +24,6 @@ def set_mission_commodity_state(elite_main: Any, query: str | None) -> str | Non
     if normalized:
         elite_main.repo.set_state("mission_commodity", normalized)
     return normalized
-
-
-def build_route_request_with_max_age(elite_main: Any, max_age_hours: float | None = None) -> Any:
-    route_request = elite_main.default_route_request()
-    if max_age_hours is not None:
-        route_request.max_age_hours = max_age_hours
-    return route_request
 
 
 def remember_commodity_lookup(elite_main: Any, query: str) -> dict[str, Any] | None:
