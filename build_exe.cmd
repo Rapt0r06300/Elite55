@@ -16,7 +16,7 @@ if exist ".venv\Scripts\python.exe" (
 
 where py >nul 2>nul
 if %errorlevel%==0 (
-    echo [1/6] Création de l'environnement virtuel Python...
+    echo [1/7] Création de l'environnement virtuel Python...
     py -3 -m venv .venv
     if errorlevel 1 goto :error
     set "PYTHON=.venv\Scripts\python.exe"
@@ -25,7 +25,7 @@ if %errorlevel%==0 (
 
 where python >nul 2>nul
 if %errorlevel%==0 (
-    echo [1/6] Création de l'environnement virtuel Python...
+    echo [1/7] Création de l'environnement virtuel Python...
     python -m venv .venv
     if errorlevel 1 goto :error
     set "PYTHON=.venv\Scripts\python.exe"
@@ -37,29 +37,35 @@ echo Installe Python 3 puis relance ce fichier.
 goto :end
 
 :python_ok
-echo [2/6] Mise à jour de pip...
+echo [2/7] Mise à jour de pip...
 "%PYTHON%" -m pip install --upgrade pip
 if errorlevel 1 goto :error
 
-echo [3/6] Installation des dépendances du projet...
+echo [3/7] Installation des dépendances du projet...
 "%PYTHON%" -m pip install -r requirements.txt pyinstaller
 if errorlevel 1 goto :error
 
-echo [4/6] Nettoyage des anciens dossiers build et dist...
+echo [4/7] Fermeture d'une ancienne instance d'Elite55 si elle tourne encore...
+taskkill /F /IM "Elite55.exe" >nul 2>nul
+taskkill /F /IM "Elite Dangerous - Plug.exe" >nul 2>nul
+timeout /t 1 /nobreak >nul
+
+echo [5/7] Nettoyage des anciens dossiers build et dist...
 if exist "build" rmdir /s /q "build"
-if exist "dist" rmdir /s /q "dist"
+if exist "dist\Elite55" rmdir /s /q "dist\Elite55"
+if exist "dist\Elite55" goto :dist_locked
 if exist "Elite55.spec" del /q "Elite55.spec"
 if exist "Elite Dangerous - Plug.spec" del /q "Elite Dangerous - Plug.spec"
 
-echo [5/6] Compilation de l'exécutable bureau...
+echo [6/7] Compilation de l'exécutable bureau...
 "%PYTHON%" -m PyInstaller --noconfirm --clean --windowed --onedir --name "Elite55" --add-data "app\static;app\static" --add-data "app\templates;app\templates" --hidden-import sitecustomize --hidden-import app.trade_ranking --hidden-import app.live_snapshot_backend --hidden-import app.live_snapshot_service --hidden-import app.commodity_intel_service --hidden-import app.mission_intel_service --hidden-import app.dashboard_service --hidden-import PySide6.QtWebEngineCore --hidden-import PySide6.QtWebEngineWidgets elite55_desktop.py
 if errorlevel 1 goto :error
 
 if exist "elite_trade.db" (
-    echo [6/6] Copie de la base locale dans le dossier dist...
+    echo [7/7] Copie de la base locale dans le dossier dist...
     copy /Y "elite_trade.db" "dist\Elite55\elite_trade.db" >nul
 ) else (
-    echo [6/6] Aucune base locale à copier, le logiciel la créera si nécessaire.
+    echo [7/7] Aucune base locale à copier, le logiciel la créera si nécessaire.
 )
 
 echo.
@@ -69,6 +75,19 @@ echo Exécutable : dist\Elite55\Elite55.exe
 echo ==========================================
 echo.
 start "" explorer "dist\Elite55"
+pause
+goto :end
+
+:dist_locked
+echo.
+echo [ERREUR] Impossible de nettoyer dist\Elite55.
+echo Un ancien Elite55.exe ou un fichier du dossier dist est encore ouvert.
+echo.
+echo Ferme :
+echo - Elite55
+echo - toute fenêtre ouverte sur dist\Elite55
+echo - et relance ensuite build_exe.cmd
+echo.
 pause
 goto :end
 
