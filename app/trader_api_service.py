@@ -1,0 +1,124 @@
+from __future__ import annotations
+
+from typing import Any
+
+from app.dashboard_api_service import build_dashboard_response
+
+
+def build_routes_response(elite_main: Any, route_request: Any | None = None) -> dict[str, Any]:
+    return {"ok": True, "dashboard": build_dashboard_response(elite_main, route_request)}
+
+
+def build_local_pulse_response(elite_main: Any) -> dict[str, Any]:
+    builder = getattr(elite_main, "local_pulse_payload", None)
+    if not callable(builder):
+        raise RuntimeError("Aucun builder local pulse disponible")
+    return {"ok": True, "dashboard": builder()}
+
+
+def build_live_snapshot_response(elite_main: Any, payload: Any | None = None) -> dict[str, Any]:
+    builder = getattr(elite_main, "build_live_snapshot_payload", None)
+    if not callable(builder):
+        raise RuntimeError("Aucun builder live snapshot disponible")
+    if payload is not None and getattr(payload, "commodity_query", None):
+        elite_main.repo.set_state(
+            "focus_commodity",
+            elite_main.normalize_commodity_symbol(payload.commodity_query) or payload.commodity_query,
+        )
+    mission_payload = getattr(payload, "mission", None)
+    if mission_payload is not None and getattr(mission_payload, "commodity_query", None):
+        elite_main.repo.set_state(
+            "mission_commodity",
+            elite_main.normalize_commodity_symbol(mission_payload.commodity_query) or mission_payload.commodity_query,
+        )
+    return builder(payload)
+
+
+def build_commodity_intel_response(
+    elite_main: Any,
+    query: str,
+    *,
+    max_age_hours: float | None = None,
+    origin_system: str | None = None,
+    origin_station: str | None = None,
+    target_system: str | None = None,
+    target_station: str | None = None,
+) -> dict[str, Any]:
+    elite_main.repo.set_state("focus_commodity", elite_main.normalize_commodity_symbol(query) or query)
+    resolved = elite_main.repo.resolve_commodity(query)
+    if resolved:
+        elite_main.remember_trader_selection("commodity", resolved["symbol"], resolved["commodity_name"])
+    elite_main.remember_trader_query(query)
+    route_request = elite_main.default_route_request()
+    if max_age_hours is not None:
+        route_request.max_age_hours = max_age_hours
+    return elite_main.build_commodity_intel(
+        query,
+        elite_main.build_filters(route_request),
+        origin_system=origin_system,
+        origin_station=origin_station,
+        target_system=target_system,
+        target_station=target_station,
+    )
+
+
+def build_mission_intel_response(elite_main: Any, payload: Any) -> dict[str, Any]:
+    elite_main.repo.set_state(
+        "mission_commodity",
+        elite_main.normalize_commodity_symbol(payload.commodity_query) or payload.commodity_query,
+    )
+    route_request = elite_main.default_route_request()
+    if getattr(payload, "max_age_hours", None) is not None:
+        route_request.max_age_hours = payload.max_age_hours
+    result = elite_main.build_mission_intel(
+        payload.commodity_query,
+        payload.quantity,
+        elite_main.build_filters(route_request),
+        target_system=payload.target_system,
+        target_station=payload.target_station,
+    )
+    if result.get("resolved"):
+        elite_main.remember_trader_selection("commodity", result["symbol"], result["commodity_name"])
+    if result.get("target_system"):
+        elite_main.remember_trader_selection("system", result["target_system"], result["target_system"])
+    if result.get("target_station"):
+        elite_main.remember_trader_selection(
+            "station",
+            f"{result.get('target_system') or ''}::{result['target_station']}",
+            result["target_station"],
+            secondary=result.get("target_system"),
+        )
+    elite_main.remember_mission_plan(
+        payload.commodity_query,
+        payload.quantity,
+        commodity_name=result.get("commodity_name"),
+        target_system=result.get("target_system"),
+        target_station=result.get("target_station"),
+    )
+    return result
+
+
+def apply_player_config_response(elite_main: Any, payload: Any) -> dict[str, Any]:
+    elite_main.repo.set_states(
+        {
+            "cargo_capacity_override": payload.cargo_capacity_override,
+            "jump_range_override": payload.jump_range_override,
+            "preferred_pad_size": payload.preferred_pad_size,
+        }
+    )
+    dashboard = build_dashboard_response(elite_main)
+    elite_main.remember_ship_profile(dashboard["player"])
+    return {"ok": True, "dashboard": dashboard}
+
+
+def install_trader_api_service_patches(elite_main: Any) -> None:
+    if getattr(elite_main.app.state, "elite55_trader_api_service_installed", False):
+        return
+
+    elite_main.routes_response = lambda route_request=None: build_routes_response(elite_main, route_request)
+    elite_main.local_pulse_response = lambda: build_local_pulse_response(elite_main)
+    elite_main.live_snapshot_response = lambda payload=None: build_live_snapshot_response(elite_main, payload)
+    elite_main.commodity_intel_response = lambda query, **kwargs: build_commodity_intel_response(elite_main, query, **kwargs)
+    elite_main.mission_intel_response = lambda payload: build_mission_intel_response(elite_main, payload)
+    elite_main.apply_player_config_response = lambda payload: apply_player_config_response(elite_main, payload)
+    elite_main.app.state.elite55_trader_api_service_installed = True
