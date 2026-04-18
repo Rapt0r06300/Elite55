@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.route_engine import build_route_context
+
 
 DEFAULT_COMMODITY_QUERY = "gold"
 
@@ -21,19 +23,14 @@ def build_commodity_intel_payload(
     commodity_query: str | None = None,
     route_request: Any | None = None,
 ) -> dict[str, Any]:
-    request = route_request or elite_main.default_route_request()
-    filters = elite_main.build_filters(request)
-    player = elite_main.player_runtime_snapshot(elite_main.repo.get_all_state())
-    rows = elite_main.repo.filtered_trade_rows(filters)
-    owned_permits = elite_main.known_owned_permits()
-    player_position = elite_main.repo.system_position(player.get("current_system"))
-    resolved_query = resolve_commodity_query(elite_main, commodity_query, player)
+    context = build_route_context(elite_main, route_request)
+    resolved_query = resolve_commodity_query(elite_main, commodity_query, context.player)
     return elite_main.build_commodity_intel(
         resolved_query,
-        filters,
-        all_rows=rows,
-        player_position=player_position,
-        owned_permits=owned_permits,
+        context.filters,
+        all_rows=context.rows,
+        player_position=context.player_position,
+        owned_permits=context.owned_permits,
     )
 
 
