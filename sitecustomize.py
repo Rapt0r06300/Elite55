@@ -39,6 +39,7 @@ else:
     _install_step("analyse mission", "app.mission_intel_service.install_mission_intel_service_patches", elite_main)
     _install_step("tableau de bord commerce", "app.dashboard_service.install_dashboard_service_patches", elite_main)
     _install_step("contexte dashboard", "app.pulse_context_service.install_pulse_context_service_patches", elite_main)
+    _install_step("forme des réponses", "app.payload_shape_service.install_payload_shape_service_patches", elite_main)
     _install_step("API dashboard", "app.dashboard_api_service.install_dashboard_api_service_patches", elite_main)
     _install_step("API trader", "app.trader_api_service.install_trader_api_service_patches", elite_main)
     _install_step("API sources", "app.source_api_service.install_source_api_service_patches", elite_main)
