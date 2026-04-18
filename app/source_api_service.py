@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.api_response_service import ok_stats_dashboard
 from app.api_route_patch import patch_api_route
 from app.dashboard_api_service import build_dashboard_response
 from app.source_context_service import (
@@ -13,17 +14,17 @@ from app.source_context_service import (
 
 async def build_import_journals_response(elite_main: Any) -> dict[str, Any]:
     stats = await build_import_journal_stats(elite_main)
-    return {"ok": True, "stats": stats, "dashboard": build_dashboard_response(elite_main)}
+    return ok_stats_dashboard(stats, build_dashboard_response(elite_main))
 
 
 async def build_sync_ardent_response(elite_main: Any, payload: Any) -> dict[str, Any]:
     _, stats = await build_sync_ardent_stats(elite_main, payload)
-    return {"ok": True, "stats": stats, "dashboard": build_dashboard_response(elite_main)}
+    return ok_stats_dashboard(stats, build_dashboard_response(elite_main))
 
 
 async def build_refresh_current_market_response(elite_main: Any) -> dict[str, Any]:
     stats = await build_refresh_current_market_stats(elite_main)
-    return {"ok": True, "stats": stats, "dashboard": build_dashboard_response(elite_main)}
+    return ok_stats_dashboard(stats, build_dashboard_response(elite_main))
 
 
 def install_source_api_service_patches(elite_main: Any) -> None:
