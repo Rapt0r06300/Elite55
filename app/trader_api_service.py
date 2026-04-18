@@ -5,6 +5,12 @@ from typing import Any
 from app.api_route_patch import patch_api_route
 from app.dashboard_api_service import build_dashboard_response
 from app.snapshot_cache_service import build_cached_live_snapshot_response
+from app.trader_context_service import (
+    build_route_request_with_max_age,
+    remember_commodity_lookup,
+    remember_mission_result,
+    set_mission_commodity_state,
+)
 
 
 def build_routes_response(elite_main: Any, route_request: Any | None = None) -> dict[str, Any]:
@@ -35,14 +41,8 @@ def build_commodity_intel_response(
     target_system: str | None = None,
     target_station: str | None = None,
 ) -> dict[str, Any]:
-    elite_main.repo.set_state("focus_commodity", elite_main.normalize_commodity_symbol(query) or query)
-    resolved = elite_main.repo.resolve_commodity(query)
-    if resolved:
-        elite_main.remember_trader_selection("commodity", resolved["symbol"], resolved["commodity_name"])
-    elite_main.remember_trader_query(query)
-    route_request = elite_main.default_route_request()
-    if max_age_hours is not None:
-        route_request.max_age_hours = max_age_hours
+    remember_commodity_lookup(elite_main, query)
+    route_request = build_route_request_with_max_age(elite_main, max_age_hours)
     return elite_main.build_commodity_intel(
         query,
         elite_main.build_filters(route_request),
@@ -54,13 +54,8 @@ def build_commodity_intel_response(
 
 
 def build_mission_intel_response(elite_main: Any, payload: Any) -> dict[str, Any]:
-    elite_main.repo.set_state(
-        "mission_commodity",
-        elite_main.normalize_commodity_symbol(payload.commodity_query) or payload.commodity_query,
-    )
-    route_request = elite_main.default_route_request()
-    if getattr(payload, "max_age_hours", None) is not None:
-        route_request.max_age_hours = payload.max_age_hours
+    set_mission_commodity_state(elite_main, payload.commodity_query)
+    route_request = build_route_request_with_max_age(elite_main, getattr(payload, "max_age_hours", None))
     result = elite_main.build_mission_intel(
         payload.commodity_query,
         payload.quantity,
@@ -68,24 +63,7 @@ def build_mission_intel_response(elite_main: Any, payload: Any) -> dict[str, Any
         target_system=payload.target_system,
         target_station=payload.target_station,
     )
-    if result.get("resolved"):
-        elite_main.remember_trader_selection("commodity", result["symbol"], result["commodity_name"])
-    if result.get("target_system"):
-        elite_main.remember_trader_selection("system", result["target_system"], result["target_system"])
-    if result.get("target_station"):
-        elite_main.remember_trader_selection(
-            "station",
-            f"{result.get('target_system') or ''}::{result['target_station']}",
-            result["target_station"],
-            secondary=result.get("target_system"),
-        )
-    elite_main.remember_mission_plan(
-        payload.commodity_query,
-        payload.quantity,
-        commodity_name=result.get("commodity_name"),
-        target_system=result.get("target_system"),
-        target_station=result.get("target_station"),
-    )
+    remember_mission_result(elite_main, payload, result)
     return result
 
 
