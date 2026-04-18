@@ -55,6 +55,11 @@ class TraderApiServiceTests(unittest.TestCase):
         elite.remember_trader_query = lambda query: remembered.append((("query", query), {}))
         elite.remember_mission_plan = lambda *args, **kwargs: mission_plans.append((args, kwargs))
         elite.remember_ship_profile = lambda player: ship_profiles.append(dict(player))
+        elite.snapshot_cache_lock = __import__("threading").Lock()
+        elite.snapshot_cache = {}
+        elite.background_flags = {"remote_seed_running": False}
+        elite.SNAPSHOT_CACHE_TTL_SECONDS = 1.5
+        elite.SNAPSHOT_CACHE_BUSY_STALE_SECONDS = 45.0
         elite.app = types.SimpleNamespace(state=types.SimpleNamespace())
         elite._remembered = remembered
         elite._mission_plans = mission_plans
@@ -90,6 +95,14 @@ class TraderApiServiceTests(unittest.TestCase):
         self.assertIn(("focus_commodity", "gold"), elite.repo.state_calls)
         self.assertTrue(elite._remembered)
 
+    def test_build_commodity_intel_response_prefers_payload_builder_when_available(self) -> None:
+        elite = self._elite()
+        elite.build_commodity_intel_payload = lambda query, **kwargs: {"source": "payload", "query": query, **kwargs}
+        result = build_commodity_intel_response(elite, "gold", target_system="Sol")
+        self.assertEqual(result["source"], "payload")
+        self.assertEqual(result["query"], "gold")
+        self.assertEqual(result["target_system"], "Sol")
+
     def test_build_mission_intel_response_updates_memory_and_plan(self) -> None:
         elite = self._elite()
         payload = types.SimpleNamespace(
@@ -105,6 +118,29 @@ class TraderApiServiceTests(unittest.TestCase):
         self.assertEqual(result["target_system"], "Sol")
         self.assertTrue(elite._mission_plans)
         self.assertIn(("mission_commodity", "gold"), elite.repo.state_calls)
+
+    def test_build_mission_intel_response_prefers_payload_builder_when_available(self) -> None:
+        elite = self._elite()
+        elite.build_mission_intel_payload = lambda query, quantity, **kwargs: {
+            "source": "payload",
+            "resolved": True,
+            "symbol": "gold",
+            "commodity_name": "Or",
+            "query": query,
+            "quantity": quantity,
+            "target_system": kwargs.get("target_system"),
+            "target_station": kwargs.get("target_station"),
+        }
+        payload = types.SimpleNamespace(
+            commodity_query="gold",
+            quantity=120,
+            target_system="Sol",
+            target_station="Galileo",
+            max_age_hours=18,
+        )
+        result = build_mission_intel_response(elite, payload)
+        self.assertEqual(result["source"], "payload")
+        self.assertTrue(elite._mission_plans)
 
     def test_apply_player_config_response_updates_state_and_ship_profile(self) -> None:
         elite = self._elite()
