@@ -44,6 +44,8 @@ else:
     _install_step("flux trader", "app.trade_flow_service.install_trade_flow_service_patches", elite_main)
     _install_step("scoring trader", "app.trade_scoring_service.install_trade_scoring_service_patches", elite_main)
     _install_step("recommandations trader", "app.trade_recommendation_service.install_trade_recommendation_service_patches", elite_main)
+    _install_step("moteur dashboard", "app.trade_dashboard_engine_service.install_trade_dashboard_engine_service_patches", elite_main)
+    _install_step("moteur intel trader", "app.trade_intel_engine_service.install_trade_intel_engine_service_patches", elite_main)
     _install_step("classement backend", "app.trade_ranking.install_backend_ranking_patches", elite_main)
     _install_step("cache live", "app.live_snapshot_backend.install_live_snapshot_backend_patches", elite_main)
     _install_step("service live", "app.live_snapshot_service.install_live_snapshot_service_patches", elite_main)
