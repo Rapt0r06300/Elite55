@@ -5,9 +5,7 @@ import json
 from typing import Any
 
 from app.route_engine import (
-    build_ranked_decision_cards,
-    build_ranked_quick_trade,
-    build_ranked_route_views,
+    build_ranked_analysis_payload,
     build_route_view_player,
     normalize_sort_mode,
     sort_loops_by_mode as engine_sort_loops_by_mode,
@@ -117,12 +115,13 @@ def install_backend_ranking_patches(elite_main: Any) -> None:
     original_enrich_dashboard_payload = elite_main.enrich_dashboard_payload
 
     def patched_select_route_views(routes: list[dict[str, Any]], player: dict[str, Any] | None = None) -> dict[str, Any]:
-        payload = build_ranked_route_views(
-            routes,
+        payload = build_ranked_analysis_payload(
+            routes=routes,
+            loops=None,
             mode=current_ranking_mode(),
             player=player,
             select_route_views=original_select_route_views,
-        )
+        )["route_views"]
         payload.update(ranking_payload(payload.get("ranking_mode")))
         return payload
 
@@ -141,69 +140,63 @@ def install_backend_ranking_patches(elite_main: Any) -> None:
             owned_permits=owned_permits,
             player_position=player_position,
         )
-        data["routes"] = sort_routes_by_mode(data.get("routes"))
-        data["loops"] = sort_loops_by_mode(data.get("loops"))
-        data["route_views"] = patched_select_route_views(data.get("routes") or [], data.get("player") or player)
-        decision_cards = build_ranked_decision_cards(
-            data.get("decision_cards"),
+        ranked = build_ranked_analysis_payload(
             routes=data.get("routes"),
             loops=data.get("loops"),
             mode=current_ranking_mode(),
+            player=data.get("player") or player,
+            select_route_views=original_select_route_views,
+            decision_cards=data.get("decision_cards"),
         )
+        data["routes"] = ranked["routes"]
+        data["loops"] = ranked["loops"]
+        data["route_views"] = ranked["route_views"]
+        decision_cards = dict(ranked["decision_cards"] or {})
         decision_cards.update(ranking_payload(decision_cards.get("ranking_mode")))
         data["decision_cards"] = decision_cards
-        data.update(ranking_payload())
+        data.update(ranking_payload(ranked.get("ranking_mode")))
         return data
 
     def patched_build_commodity_intel(*args: Any, **kwargs: Any) -> dict[str, Any]:
         data = original_build_commodity_intel(*args, **kwargs)
-        routes = sort_routes_by_mode(data.get("best_routes"))
-        data["best_routes"] = routes
-        route_views = dict(data.get("route_views") or {})
-        route_views.update(
-            patched_select_route_views(
-                routes,
-                build_route_view_player(
-                    elite_main.repo.get_state("current_system"),
-                    elite_main.repo.get_state("current_market_id"),
-                ),
-            )
-        )
-        data["route_views"] = route_views
-        quick_trade = build_ranked_quick_trade(
-            data.get("quick_trade"),
-            routes=routes,
-            mode=current_ranking_mode(),
-        )
-        quick_trade.update(ranking_payload(quick_trade.get("ranking_mode")))
-        data["quick_trade"] = quick_trade
-        decision_cards = build_ranked_decision_cards(
-            data.get("decision_cards"),
-            routes=routes,
+        ranked = build_ranked_analysis_payload(
+            routes=data.get("best_routes"),
             loops=None,
             mode=current_ranking_mode(),
+            player=build_route_view_player(
+                elite_main.repo.get_state("current_system"),
+                elite_main.repo.get_state("current_market_id"),
+            ),
+            select_route_views=original_select_route_views,
+            decision_cards=data.get("decision_cards"),
+            quick_trade=data.get("quick_trade"),
         )
+        data["best_routes"] = ranked["routes"]
+        data["route_views"] = ranked["route_views"]
+        quick_trade = dict(ranked["quick_trade"] or {})
+        quick_trade.update(ranking_payload(quick_trade.get("ranking_mode")))
+        data["quick_trade"] = quick_trade
+        decision_cards = dict(ranked["decision_cards"] or {})
         decision_cards.update(ranking_payload(decision_cards.get("ranking_mode")))
         data["decision_cards"] = decision_cards
-        data.update(ranking_payload())
+        data.update(ranking_payload(ranked.get("ranking_mode")))
         return data
 
     def patched_build_mission_intel(*args: Any, **kwargs: Any) -> dict[str, Any]:
         data = original_build_mission_intel(*args, **kwargs)
-        routes = sort_routes_by_mode(data.get("best_routes"))
-        data["best_routes"] = routes
-        route_views = dict(data.get("route_views") or {})
-        route_views.update(
-            patched_select_route_views(
-                routes,
-                build_route_view_player(
-                    elite_main.repo.get_state("current_system"),
-                    elite_main.repo.get_state("current_market_id"),
-                ),
-            )
+        ranked = build_ranked_analysis_payload(
+            routes=data.get("best_routes"),
+            loops=None,
+            mode=current_ranking_mode(),
+            player=build_route_view_player(
+                elite_main.repo.get_state("current_system"),
+                elite_main.repo.get_state("current_market_id"),
+            ),
+            select_route_views=original_select_route_views,
         )
-        data["route_views"] = route_views
-        data.update(ranking_payload())
+        data["best_routes"] = ranked["routes"]
+        data["route_views"] = ranked["route_views"]
+        data.update(ranking_payload(ranked.get("ranking_mode")))
         return data
 
     def patched_enrich_dashboard_payload(data: dict[str, Any], route_request: Any, owned_permits: set[str] | None = None) -> dict[str, Any]:
