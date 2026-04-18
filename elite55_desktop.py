@@ -82,7 +82,9 @@ class EliteServerThread(threading.Thread):
                 host=self.host,
                 port=self.port,
                 reload=False,
-                log_level="info",
+                log_level="warning",
+                access_log=False,
+                log_config=None,
             )
             self.server = uvicorn.Server(config)
             self.server.run()
