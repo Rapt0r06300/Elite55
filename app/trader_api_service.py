@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.api_response_service import ok_dashboard
 from app.api_route_patch import patch_api_route
 from app.dashboard_api_service import build_dashboard_response
 from app.snapshot_cache_service import build_cached_live_snapshot_response
@@ -14,14 +15,14 @@ from app.trader_context_service import (
 
 
 def build_routes_response(elite_main: Any, route_request: Any | None = None) -> dict[str, Any]:
-    return {"ok": True, "dashboard": build_dashboard_response(elite_main, route_request)}
+    return ok_dashboard(build_dashboard_response(elite_main, route_request))
 
 
 def build_local_pulse_response(elite_main: Any) -> dict[str, Any]:
     builder = getattr(elite_main, "local_pulse_payload", None)
     if not callable(builder):
         raise RuntimeError("Aucun builder local pulse disponible")
-    return {"ok": True, "dashboard": builder()}
+    return ok_dashboard(builder())
 
 
 def build_live_snapshot_response(elite_main: Any, payload: Any | None = None) -> dict[str, Any]:
@@ -97,7 +98,7 @@ def apply_player_config_response(elite_main: Any, payload: Any) -> dict[str, Any
     )
     dashboard = build_dashboard_response(elite_main)
     elite_main.remember_ship_profile(dashboard["player"])
-    return {"ok": True, "dashboard": dashboard}
+    return ok_dashboard(dashboard)
 
 
 def install_trader_api_service_patches(elite_main: Any) -> None:
