@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable
 
 
 @dataclass(slots=True)
@@ -132,6 +132,55 @@ def build_route_selection_payload(
         "primary_route": ranked_routes[0] if ranked_routes else None,
         "primary_loop": ranked_loops[0] if ranked_loops else None,
     }
+
+
+def build_route_view_player(current_system: Any = None, current_market_id: Any = None) -> dict[str, Any]:
+    return {
+        "current_system": current_system,
+        "current_market_id": current_market_id,
+    }
+
+
+def build_ranked_route_views(
+    routes: list[dict[str, Any]] | None,
+    *,
+    mode: str | None,
+    player: dict[str, Any] | None,
+    select_route_views: Callable[[list[dict[str, Any]], dict[str, Any] | None], dict[str, Any]],
+) -> dict[str, Any]:
+    selection = build_route_selection_payload(routes, mode=mode)
+    payload = dict(select_route_views(selection["routes"], player) or {})
+    payload["primary_route"] = selection["primary_route"]
+    payload["ranking_mode"] = selection["ranking_mode"]
+    return payload
+
+
+def build_ranked_decision_cards(
+    decision_cards: dict[str, Any] | None,
+    *,
+    routes: list[dict[str, Any]] | None,
+    loops: list[dict[str, Any]] | None,
+    mode: str | None,
+) -> dict[str, Any]:
+    payload = dict(decision_cards or {})
+    selection = build_route_selection_payload(routes, loops, mode)
+    payload["primary_route"] = selection["primary_route"]
+    payload["primary_loop"] = selection["primary_loop"]
+    payload["ranking_mode"] = selection["ranking_mode"]
+    return payload
+
+
+def build_ranked_quick_trade(
+    quick_trade: dict[str, Any] | None,
+    *,
+    routes: list[dict[str, Any]] | None,
+    mode: str | None,
+) -> dict[str, Any]:
+    payload = dict(quick_trade or {})
+    selection = build_route_selection_payload(routes, mode=mode)
+    payload["best_route"] = selection["primary_route"]
+    payload["ranking_mode"] = selection["ranking_mode"]
+    return payload
 
 
 def route_context_payload(context: RouteContext) -> dict[str, Any]:
