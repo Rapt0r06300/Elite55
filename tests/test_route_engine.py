@@ -3,7 +3,13 @@ from __future__ import annotations
 import types
 import unittest
 
-from app.route_engine import build_route_context, resolve_route_request, route_context_payload
+from app.route_engine import (
+    RouteContext,
+    build_route_context,
+    ensure_route_context,
+    resolve_route_request,
+    route_context_payload,
+)
 
 
 class _FakeRepo:
@@ -53,6 +59,19 @@ class RouteEngineTests(unittest.TestCase):
         context = build_route_context(elite, request)
         self.assertEqual(context.request.max_age_hours, 24)
         self.assertEqual(context.filters.cargo_capacity, 64)
+
+    def test_ensure_route_context_reuses_existing_context(self) -> None:
+        elite = self._elite()
+        existing = RouteContext(
+            request=types.SimpleNamespace(max_age_hours=12),
+            filters=types.SimpleNamespace(cargo_capacity=32),
+            player={"current_system": "Achenar"},
+            rows=[{"commodity_symbol": "tritium"}],
+            owned_permits={"achenar"},
+            player_position={"x": 1, "y": 2, "z": 3},
+        )
+        resolved = ensure_route_context(elite, route_context=existing)
+        self.assertIs(resolved, existing)
 
     def test_route_context_payload_exposes_expected_keys(self) -> None:
         elite = self._elite()
