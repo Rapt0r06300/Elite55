@@ -4,26 +4,26 @@ import asyncio
 import os
 from typing import Any
 
+from app.api_response_service import ok_health, ok_status
 from app.api_route_patch import patch_api_route
 from app.app_event_patch import patch_app_event_handler
 
 
 def build_health_response(elite_main: Any) -> dict[str, Any]:
-    return {
-        "ok": True,
-        "build_token": os.environ.get("ELITE55_BUILD_TOKEN"),
-        "engine_status": elite_main.build_engine_status(),
-        "market_rows": elite_main.repo.commodity_price_count(),
-        "name_library_total": elite_main.repo.name_library_summary().get("total", 0),
-    }
+    return ok_health(
+        build_token=os.environ.get("ELITE55_BUILD_TOKEN"),
+        engine_status=elite_main.build_engine_status(),
+        market_rows=elite_main.repo.commodity_price_count(),
+        name_library_total=elite_main.repo.name_library_summary().get("total", 0),
+    )
 
 
 def build_eddn_start_response(elite_main: Any) -> dict[str, Any]:
-    return {"ok": True, "status": elite_main.eddn_listener.start()}
+    return ok_status(elite_main.eddn_listener.start())
 
 
 def build_eddn_stop_response(elite_main: Any) -> dict[str, Any]:
-    return {"ok": True, "status": elite_main.eddn_listener.stop()}
+    return ok_status(elite_main.eddn_listener.stop())
 
 
 async def run_startup_runtime(elite_main: Any) -> None:
