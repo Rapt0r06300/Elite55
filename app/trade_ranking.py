@@ -8,32 +8,11 @@ from app.route_engine import (
     build_ranked_analysis_payload,
     build_route_view_player,
     normalize_sort_mode,
+    ranking_payload as engine_ranking_payload,
     sort_loops_by_mode as engine_sort_loops_by_mode,
     sort_routes_by_mode as engine_sort_routes_by_mode,
 )
 
-RANKING_META: dict[str, dict[str, str]] = {
-    "profit_total": {
-        "label": "Profit brut",
-        "title": "Route la plus rentable",
-        "note": "Classe surtout par bénéfice total du trajet.",
-    },
-    "profit_hour": {
-        "label": "Profit / heure",
-        "title": "Route la plus rentable / h",
-        "note": "Classe surtout par rendement horaire réel.",
-    },
-    "fast": {
-        "label": "Trajet rapide",
-        "title": "Route la plus rapide",
-        "note": "Classe surtout par temps estimé et fluidité.",
-    },
-    "fresh": {
-        "label": "Ultra frais",
-        "title": "Route la plus fraîche",
-        "note": "Classe surtout par fraîcheur et confiance des données.",
-    },
-}
 DEFAULT_RANKING_MODE = "profit_hour"
 _ranking_mode_ctx: contextvars.ContextVar[str] = contextvars.ContextVar(
     "elite55_ranking_mode",
@@ -50,14 +29,7 @@ def current_ranking_mode() -> str:
 
 
 def ranking_payload(mode: str | None = None) -> dict[str, str]:
-    selected_mode = normalize_mode(mode or current_ranking_mode())
-    meta = RANKING_META[selected_mode]
-    return {
-        "ranking_mode": selected_mode,
-        "ranking_label": meta["label"],
-        "ranking_title": meta["title"],
-        "ranking_note": meta["note"],
-    }
+    return engine_ranking_payload(mode or current_ranking_mode())
 
 
 def sort_routes_by_mode(routes: list[dict[str, Any]] | None, mode: str | None = None) -> list[dict[str, Any]]:
@@ -122,7 +94,6 @@ def install_backend_ranking_patches(elite_main: Any) -> None:
             player=player,
             select_route_views=original_select_route_views,
         )["route_views"]
-        payload.update(ranking_payload(payload.get("ranking_mode")))
         return payload
 
     def patched_build_trade_dashboard(
@@ -151,9 +122,7 @@ def install_backend_ranking_patches(elite_main: Any) -> None:
         data["routes"] = ranked["routes"]
         data["loops"] = ranked["loops"]
         data["route_views"] = ranked["route_views"]
-        decision_cards = dict(ranked["decision_cards"] or {})
-        decision_cards.update(ranking_payload(decision_cards.get("ranking_mode")))
-        data["decision_cards"] = decision_cards
+        data["decision_cards"] = ranked["decision_cards"]
         data.update(ranking_payload(ranked.get("ranking_mode")))
         return data
 
@@ -173,12 +142,8 @@ def install_backend_ranking_patches(elite_main: Any) -> None:
         )
         data["best_routes"] = ranked["routes"]
         data["route_views"] = ranked["route_views"]
-        quick_trade = dict(ranked["quick_trade"] or {})
-        quick_trade.update(ranking_payload(quick_trade.get("ranking_mode")))
-        data["quick_trade"] = quick_trade
-        decision_cards = dict(ranked["decision_cards"] or {})
-        decision_cards.update(ranking_payload(decision_cards.get("ranking_mode")))
-        data["decision_cards"] = decision_cards
+        data["quick_trade"] = ranked["quick_trade"]
+        data["decision_cards"] = ranked["decision_cards"]
         data.update(ranking_payload(ranked.get("ranking_mode")))
         return data
 
