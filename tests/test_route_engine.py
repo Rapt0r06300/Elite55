@@ -5,8 +5,12 @@ import unittest
 
 from app.route_engine import (
     RouteContext,
+    build_ranked_decision_cards,
+    build_ranked_quick_trade,
+    build_ranked_route_views,
     build_route_context,
     build_route_selection_payload,
+    build_route_view_player,
     ensure_route_context,
     resolve_route_request,
     route_context_payload,
@@ -104,6 +108,49 @@ class RouteEngineTests(unittest.TestCase):
         self.assertEqual(payload["ranking_mode"], "fast")
         self.assertEqual(payload["primary_route"]["commodity_name"], "Quick")
         self.assertEqual(payload["primary_loop"]["from_station"], "X")
+
+    def test_build_route_view_player_returns_expected_shape(self) -> None:
+        player = build_route_view_player("Sol", 42)
+        self.assertEqual(player["current_system"], "Sol")
+        self.assertEqual(player["current_market_id"], 42)
+
+    def test_build_ranked_route_views_uses_sorted_routes(self) -> None:
+        routes = [
+            {"commodity_name": "Slow", "trip_profit": 180000, "profit_per_hour": 900000, "profit_per_minute": 15000, "unit_profit": 1900, "estimated_minutes": 12, "freshness_hours": 0.5, "confidence_score": 90, "route_score": 91},
+            {"commodity_name": "Quick", "trip_profit": 100000, "profit_per_hour": 950000, "profit_per_minute": 25000, "unit_profit": 1100, "estimated_minutes": 4, "freshness_hours": 1.0, "confidence_score": 80, "route_score": 85},
+        ]
+
+        def fake_select_route_views(sorted_routes, player):
+            return {"seen_first": sorted_routes[0]["commodity_name"], "player": player}
+
+        payload = build_ranked_route_views(
+            routes,
+            mode="fast",
+            player=build_route_view_player("Sol", 42),
+            select_route_views=fake_select_route_views,
+        )
+        self.assertEqual(payload["seen_first"], "Quick")
+        self.assertEqual(payload["primary_route"]["commodity_name"], "Quick")
+        self.assertEqual(payload["ranking_mode"], "fast")
+
+    def test_build_ranked_decision_cards_sets_primary_items(self) -> None:
+        routes = [
+            {"commodity_name": "Gold", "trip_profit": 90000, "profit_per_hour": 1200000, "profit_per_minute": 20000, "unit_profit": 1500, "estimated_minutes": 6, "freshness_hours": 2, "confidence_score": 70, "route_score": 72},
+        ]
+        loops = [
+            {"from_station": "A", "to_station": "B", "total_profit": 300000, "profit_per_hour": 900000, "freshness_hours": 5.0, "confidence_score": 75, "route_score": 77},
+        ]
+        payload = build_ranked_decision_cards({}, routes=routes, loops=loops, mode="profit_hour")
+        self.assertEqual(payload["primary_route"]["commodity_name"], "Gold")
+        self.assertEqual(payload["primary_loop"]["from_station"], "A")
+
+    def test_build_ranked_quick_trade_sets_best_route(self) -> None:
+        routes = [
+            {"commodity_name": "Gold", "trip_profit": 90000, "profit_per_hour": 1200000, "profit_per_minute": 20000, "unit_profit": 1500, "estimated_minutes": 6, "freshness_hours": 2, "confidence_score": 70, "route_score": 72},
+        ]
+        payload = build_ranked_quick_trade({}, routes=routes, mode="profit_hour")
+        self.assertEqual(payload["best_route"]["commodity_name"], "Gold")
+        self.assertEqual(payload["ranking_mode"], "profit_hour")
 
     def test_route_context_payload_exposes_expected_keys(self) -> None:
         elite = self._elite()
