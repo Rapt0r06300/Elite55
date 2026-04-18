@@ -34,6 +34,7 @@ else:
     _install_step("helpers coeur", "app.core_runtime_service.install_core_runtime_service_patches", elite_main)
     _install_step("journal catalogue", "app.journal_catalog_service.install_journal_catalog_service_patches", elite_main)
     _install_step("correspondance texte", "app.search_match_service.install_search_match_service_patches", elite_main)
+    _install_step("helper noms", "app.lookup_name_service.install_lookup_name_service_patches", elite_main)
     _install_step("moteur suggestions", "app.suggestion_engine_service.install_suggestion_engine_service_patches", elite_main)
     _install_step("config trader", "app.trade_config_service.install_trade_config_service_patches", elite_main)
     _install_step("moteur de routes", "app.route_engine.install_route_engine_patches", elite_main)
