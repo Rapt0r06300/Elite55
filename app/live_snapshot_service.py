@@ -5,41 +5,8 @@ from typing import Any
 from app.commodity_intel_service import build_commodity_intel_payload, resolve_commodity_query
 from app.dashboard_service import build_dashboard_payload
 from app.mission_intel_service import build_mission_intel_payload, resolve_mission_quantity
+from app.pulse_context_service import build_local_pulse_payload
 from app.route_engine import build_route_context
-
-
-def build_local_pulse_payload(elite_main: Any) -> dict[str, Any]:
-    player = elite_main.player_runtime_snapshot(elite_main.repo.get_all_state())
-    local_sync = elite_main.local_sync_service.status()
-    current_market = elite_main.repo.current_market()
-    name_library = elite_main.repo.name_library_summary()
-    market_rows = elite_main.repo.commodity_price_count()
-    current_system = player.get("current_system") or elite_main.repo.get_state("current_system")
-    permit_labels = elite_main.known_owned_permit_labels()
-    return {
-        "player": player,
-        "current_market": current_market,
-        "local_sync": local_sync,
-        "eddn": elite_main.eddn_listener.status(),
-        "name_library": name_library,
-        "engine_status": elite_main.build_engine_status_from_values(
-            market_rows,
-            name_library,
-            local_sync,
-            current_market,
-            current_system,
-        ),
-        "sources": elite_main.sources_payload(),
-        "nav_route": elite_main.nav_route_payload(),
-        "combat_support": elite_main.combat_support_payload(),
-        "journal_dir": str(elite_main.JOURNAL_DIR),
-        "game_dir": str(elite_main.GAME_DIR) if elite_main.GAME_DIR else None,
-        "owned_permits": sorted(elite_main.known_owned_permits()),
-        "owned_permit_labels": permit_labels,
-        "dataset": {
-            "rows": market_rows,
-        },
-    }
 
 
 def build_live_snapshot_payload(elite_main: Any, payload: Any | None = None) -> dict[str, Any]:
