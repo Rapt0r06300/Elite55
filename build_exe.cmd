@@ -3,10 +3,13 @@ setlocal
 chcp 65001 >nul
 cd /d "%~dp0"
 
+set "ROOT_DIR=%CD%"
 set "BUILD_DIR=build_pyinstaller"
 set "DIST_DIR=dist_build"
 set "SPEC_DIR=build_spec"
 set "FINAL_EXE=%DIST_DIR%\Elite55\Elite55.exe"
+set "STATIC_DATA=%ROOT_DIR%\app\static;app\static"
+set "TEMPLATES_DATA=%ROOT_DIR%\app\templates;app\templates"
 
 echo.
 echo =====================================
@@ -66,7 +69,7 @@ if exist "Elite55.spec" del /q "Elite55.spec"
 if exist "Elite Dangerous - Plug.spec" del /q "Elite Dangerous - Plug.spec"
 
 echo [6/7] Compilation de l'exécutable bureau...
-"%PYTHON%" -m PyInstaller --noconfirm --clean --windowed --onedir --name "Elite55" --distpath "%DIST_DIR%" --workpath "%BUILD_DIR%" --specpath "%SPEC_DIR%" --add-data "app\static;app\static" --add-data "app\templates;app\templates" --hidden-import sitecustomize --hidden-import app.trade_ranking --hidden-import app.live_snapshot_backend --hidden-import app.live_snapshot_service --hidden-import app.commodity_intel_service --hidden-import app.mission_intel_service --hidden-import app.dashboard_service --hidden-import PySide6.QtWebEngineCore --hidden-import PySide6.QtWebEngineWidgets elite55_desktop.py
+"%PYTHON%" -m PyInstaller --noconfirm --clean --windowed --onedir --name "Elite55" --distpath "%DIST_DIR%" --workpath "%BUILD_DIR%" --specpath "%SPEC_DIR%" --add-data "%STATIC_DATA%" --add-data "%TEMPLATES_DATA%" --hidden-import sitecustomize --hidden-import app.trade_ranking --hidden-import app.live_snapshot_backend --hidden-import app.live_snapshot_service --hidden-import app.commodity_intel_service --hidden-import app.mission_intel_service --hidden-import app.dashboard_service --hidden-import PySide6.QtWebEngineCore --hidden-import PySide6.QtWebEngineWidgets elite55_desktop.py
 if errorlevel 1 goto :error
 
 if exist "elite_trade.db" (
