@@ -32,6 +32,7 @@ except Exception as error:
     _log_bootstrap_error("import app.main", error)
 else:
     _install_step("helpers coeur", "app.core_runtime_service.install_core_runtime_service_patches", elite_main)
+    _install_step("correspondance texte", "app.search_match_service.install_search_match_service_patches", elite_main)
     _install_step("config trader", "app.trade_config_service.install_trade_config_service_patches", elite_main)
     _install_step("moteur de routes", "app.route_engine.install_route_engine_patches", elite_main)
     _install_step("memoire trader", "app.trader_memory_service.install_trader_memory_service_patches", elite_main)
