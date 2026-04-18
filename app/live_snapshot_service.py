@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.commodity_intel_service import build_commodity_intel_payload, resolve_commodity_query
+from app.dashboard_service import build_dashboard_payload
 from app.mission_intel_service import build_mission_intel_payload, resolve_mission_quantity
 
 
@@ -43,20 +44,13 @@ def build_local_pulse_payload(elite_main: Any) -> dict[str, Any]:
 def build_live_snapshot_payload(elite_main: Any, payload: Any | None = None) -> dict[str, Any]:
     snapshot = payload or elite_main.LiveSnapshotRequest()
     route_request = snapshot.route or elite_main.default_route_request()
-    filters = elite_main.build_filters(route_request)
     player = elite_main.player_runtime_snapshot(elite_main.repo.get_all_state())
-    all_rows = elite_main.repo.filtered_trade_rows(filters)
-    owned_permits = elite_main.known_owned_permits()
-    player_position = elite_main.repo.system_position(player.get("current_system"))
+    filters = elite_main.build_filters(route_request)
 
-    dashboard = elite_main.build_trade_dashboard(
-        filters,
-        player=player,
-        all_rows=all_rows,
-        owned_permits=owned_permits,
-        player_position=player_position,
+    dashboard = build_dashboard_payload(
+        elite_main,
+        route_request,
     )
-    dashboard = elite_main.enrich_dashboard_payload(dashboard, route_request, owned_permits)
 
     commodity_query = resolve_commodity_query(elite_main, snapshot.commodity_query, player)
     commodity_intel = build_commodity_intel_payload(
