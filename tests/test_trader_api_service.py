@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import asyncio
 import types
 import unittest
+
+from fastapi import FastAPI
 
 from app.trader_api_service import (
     apply_player_config_response,
@@ -10,6 +13,7 @@ from app.trader_api_service import (
     build_local_pulse_response,
     build_mission_intel_response,
     build_routes_response,
+    install_trader_api_service_patches,
 )
 
 
@@ -109,6 +113,31 @@ class TraderApiServiceTests(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(elite.repo.states_calls[0]["preferred_pad_size"], "L")
         self.assertTrue(elite._ship_profiles)
+
+    def test_install_trader_api_service_patches_rewires_routes(self) -> None:
+        app = FastAPI()
+
+        @app.get("/api/local-pulse")
+        async def old_local_pulse():
+            return {"old": True}
+
+        @app.get("/api/commodity-intel")
+        async def old_commodity(q: str):
+            return {"old": q}
+
+        elite = self._elite()
+        elite.app = app
+        install_trader_api_service_patches(elite)
+
+        local_route = next(route for route in app.routes if getattr(route, "path", None) == "/api/local-pulse")
+        commodity_route = next(route for route in app.routes if getattr(route, "path", None) == "/api/commodity-intel")
+
+        local_result = asyncio.run(local_route.endpoint())
+        commodity_result = asyncio.run(commodity_route.endpoint("gold"))
+
+        self.assertTrue(local_result["ok"])
+        self.assertTrue(local_result["dashboard"]["pulse"])
+        self.assertEqual(commodity_result["symbol"], "gold")
 
 
 if __name__ == "__main__":
