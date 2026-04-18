@@ -2,14 +2,15 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.route_engine import build_route_context
+from app.route_engine import RouteContext, ensure_route_context
 
 
 def build_dashboard_payload(
     elite_main: Any,
     route_request: Any | None = None,
+    route_context: RouteContext | None = None,
 ) -> dict[str, Any]:
-    context = build_route_context(elite_main, route_request)
+    context = ensure_route_context(elite_main, route_request, route_context)
     dashboard = elite_main.build_trade_dashboard(
         context.filters,
         player=context.player,
@@ -24,8 +25,11 @@ def install_dashboard_service_patches(elite_main: Any) -> None:
     if getattr(elite_main.app.state, "elite55_dashboard_service_installed", False):
         return
 
-    def patched_build_dashboard_payload(route_request: Any | None = None) -> dict[str, Any]:
-        return build_dashboard_payload(elite_main, route_request)
+    def patched_build_dashboard_payload(
+        route_request: Any | None = None,
+        route_context: RouteContext | None = None,
+    ) -> dict[str, Any]:
+        return build_dashboard_payload(elite_main, route_request, route_context)
 
     elite_main.build_dashboard_payload = patched_build_dashboard_payload
     elite_main.app.state.elite55_dashboard_service_installed = True
