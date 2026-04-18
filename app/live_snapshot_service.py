@@ -5,6 +5,7 @@ from typing import Any
 from app.commodity_intel_service import build_commodity_intel_payload, resolve_commodity_query
 from app.dashboard_service import build_dashboard_payload
 from app.mission_intel_service import build_mission_intel_payload, resolve_mission_quantity
+from app.route_engine import build_route_context
 
 
 def build_local_pulse_payload(elite_main: Any) -> dict[str, Any]:
@@ -44,24 +45,16 @@ def build_local_pulse_payload(elite_main: Any) -> dict[str, Any]:
 def build_live_snapshot_payload(elite_main: Any, payload: Any | None = None) -> dict[str, Any]:
     snapshot = payload or elite_main.LiveSnapshotRequest()
     route_request = snapshot.route or elite_main.default_route_request()
-    player = elite_main.player_runtime_snapshot(elite_main.repo.get_all_state())
-    filters = elite_main.build_filters(route_request)
+    context = build_route_context(elite_main, route_request)
 
-    dashboard = build_dashboard_payload(
-        elite_main,
-        route_request,
-    )
+    dashboard = build_dashboard_payload(elite_main, context.request)
 
-    commodity_query = resolve_commodity_query(elite_main, snapshot.commodity_query, player)
-    commodity_intel = build_commodity_intel_payload(
-        elite_main,
-        commodity_query,
-        route_request,
-    )
+    commodity_query = resolve_commodity_query(elite_main, snapshot.commodity_query, context.player)
+    commodity_intel = build_commodity_intel_payload(elite_main, commodity_query, context.request)
 
     mission_payload = snapshot.mission
     mission_query = commodity_query
-    mission_quantity = resolve_mission_quantity(None, player, filters)
+    mission_quantity = resolve_mission_quantity(None, context.player, context.filters)
     mission_target_system = None
     mission_target_station = None
     if mission_payload is not None:
@@ -75,7 +68,7 @@ def build_live_snapshot_payload(elite_main: Any, payload: Any | None = None) -> 
         mission_quantity,
         target_system=mission_target_system,
         target_station=mission_target_station,
-        route_request=route_request,
+        route_request=context.request,
     )
     return {
         "dashboard": dashboard,
