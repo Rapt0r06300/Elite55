@@ -33,6 +33,7 @@ except Exception as error:
 else:
     _install_step("moteur de routes", "app.route_engine.install_route_engine_patches", elite_main)
     _install_step("memoire trader", "app.trader_memory_service.install_trader_memory_service_patches", elite_main)
+    _install_step("navigation et combat", "app.nav_combat_service.install_nav_combat_service_patches", elite_main)
     _install_step("classement backend", "app.trade_ranking.install_backend_ranking_patches", elite_main)
     _install_step("cache live", "app.live_snapshot_backend.install_live_snapshot_backend_patches", elite_main)
     _install_step("service live", "app.live_snapshot_service.install_live_snapshot_service_patches", elite_main)
