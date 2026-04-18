@@ -5,6 +5,7 @@ import unittest
 
 from app.route_engine import (
     RouteContext,
+    build_ranked_analysis_payload,
     build_ranked_decision_cards,
     build_ranked_quick_trade,
     build_ranked_route_views,
@@ -151,6 +152,33 @@ class RouteEngineTests(unittest.TestCase):
         payload = build_ranked_quick_trade({}, routes=routes, mode="profit_hour")
         self.assertEqual(payload["best_route"]["commodity_name"], "Gold")
         self.assertEqual(payload["ranking_mode"], "profit_hour")
+
+    def test_build_ranked_analysis_payload_groups_all_ranked_blocks(self) -> None:
+        routes = [
+            {"commodity_name": "Slow", "trip_profit": 180000, "profit_per_hour": 900000, "profit_per_minute": 15000, "unit_profit": 1900, "estimated_minutes": 12, "freshness_hours": 0.5, "confidence_score": 90, "route_score": 91},
+            {"commodity_name": "Quick", "trip_profit": 100000, "profit_per_hour": 950000, "profit_per_minute": 25000, "unit_profit": 1100, "estimated_minutes": 4, "freshness_hours": 1.0, "confidence_score": 80, "route_score": 85},
+        ]
+        loops = [
+            {"from_station": "X", "to_station": "Y", "total_profit": 100000, "profit_per_hour": 700000, "freshness_hours": 1.0, "confidence_score": 70, "route_score": 70},
+        ]
+
+        def fake_select_route_views(sorted_routes, player):
+            return {"seen_first": sorted_routes[0]["commodity_name"], "player": player}
+
+        payload = build_ranked_analysis_payload(
+            routes=routes,
+            loops=loops,
+            mode="fast",
+            player=build_route_view_player("Sol", 42),
+            select_route_views=fake_select_route_views,
+            decision_cards={},
+            quick_trade={},
+        )
+        self.assertEqual(payload["ranking_mode"], "fast")
+        self.assertEqual(payload["routes"][0]["commodity_name"], "Quick")
+        self.assertEqual(payload["route_views"]["primary_route"]["commodity_name"], "Quick")
+        self.assertEqual(payload["decision_cards"]["primary_loop"]["from_station"], "X")
+        self.assertEqual(payload["quick_trade"]["best_route"]["commodity_name"], "Quick")
 
     def test_route_context_payload_exposes_expected_keys(self) -> None:
         elite = self._elite()
