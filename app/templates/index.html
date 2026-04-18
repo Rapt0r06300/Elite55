@@ -726,6 +726,11 @@
         runtimeGuardScript.defer = true;
         document.body.appendChild(runtimeGuardScript);
 
+        const liveRefreshPolicyScript = document.createElement("script");
+        liveRefreshPolicyScript.src = `/static/live_refresh_policy.js?v=${version}`;
+        liveRefreshPolicyScript.defer = true;
+        document.body.appendChild(liveRefreshPolicyScript);
+
         const requestSchedulerScript = document.createElement("script");
         requestSchedulerScript.src = `/static/request_scheduler.js?v=${version}`;
         requestSchedulerScript.defer = true;
