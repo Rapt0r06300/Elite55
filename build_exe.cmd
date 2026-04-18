@@ -4,9 +4,9 @@ chcp 65001 >nul
 cd /d "%~dp0"
 
 echo.
-echo ================================
-echo   Elite55 - Compilation Windows
-echo ================================
+echo =====================================
+echo   Elite55 - Compilation bureau Windows
+echo =====================================
 echo.
 
 if exist ".venv\Scripts\python.exe" (
@@ -48,15 +48,16 @@ if errorlevel 1 goto :error
 echo [4/6] Nettoyage des anciens dossiers build et dist...
 if exist "build" rmdir /s /q "build"
 if exist "dist" rmdir /s /q "dist"
+if exist "Elite55.spec" del /q "Elite55.spec"
 if exist "Elite Dangerous - Plug.spec" del /q "Elite Dangerous - Plug.spec"
 
-echo [5/6] Compilation de l'exécutable...
-"%PYTHON%" -m PyInstaller --noconfirm --clean --onedir --name "Elite Dangerous - Plug" --add-data "app\static;app\static" --add-data "app\templates;app\templates" --hidden-import sitecustomize --hidden-import app.trade_ranking --hidden-import app.live_snapshot_backend --hidden-import app.live_snapshot_service --hidden-import app.commodity_intel_service --hidden-import app.mission_intel_service --hidden-import app.dashboard_service app\main.py
+echo [5/6] Compilation de l'exécutable bureau...
+"%PYTHON%" -m PyInstaller --noconfirm --clean --windowed --onedir --name "Elite55" --add-data "app\static;app\static" --add-data "app\templates;app\templates" --hidden-import sitecustomize --hidden-import app.trade_ranking --hidden-import app.live_snapshot_backend --hidden-import app.live_snapshot_service --hidden-import app.commodity_intel_service --hidden-import app.mission_intel_service --hidden-import app.dashboard_service --hidden-import PySide6.QtWebEngineCore --hidden-import PySide6.QtWebEngineWidgets elite55_desktop.py
 if errorlevel 1 goto :error
 
 if exist "elite_trade.db" (
     echo [6/6] Copie de la base locale dans le dossier dist...
-    copy /Y "elite_trade.db" "dist\Elite Dangerous - Plug\elite_trade.db" >nul
+    copy /Y "elite_trade.db" "dist\Elite55\elite_trade.db" >nul
 ) else (
     echo [6/6] Aucune base locale à copier, le logiciel la créera si nécessaire.
 )
@@ -64,10 +65,10 @@ if exist "elite_trade.db" (
 echo.
 echo ==========================================
 echo Compilation terminée avec succès.
-echo Exécutable : dist\Elite Dangerous - Plug\Elite Dangerous - Plug.exe
+echo Exécutable : dist\Elite55\Elite55.exe
 echo ==========================================
 echo.
-start "" explorer "dist\Elite Dangerous - Plug"
+start "" explorer "dist\Elite55"
 pause
 goto :end
 
