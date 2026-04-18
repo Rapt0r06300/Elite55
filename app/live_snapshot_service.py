@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.commodity_intel_service import build_commodity_intel_payload, resolve_commodity_query
+from app.mission_intel_service import build_mission_intel_payload, resolve_mission_quantity
+
 
 def build_local_pulse_payload(elite_main: Any) -> dict[str, Any]:
     player = elite_main.player_runtime_snapshot(elite_main.repo.get_all_state())
@@ -55,28 +58,16 @@ def build_live_snapshot_payload(elite_main: Any, payload: Any | None = None) -> 
     )
     dashboard = elite_main.enrich_dashboard_payload(dashboard, route_request, owned_permits)
 
-    commodity_query = snapshot.commodity_query
-    if commodity_query is None:
-        commodity_query = player.get("focus_commodity") or elite_main.repo.get_state("focus_commodity") or "gold"
-    commodity_intel = elite_main.build_commodity_intel(
+    commodity_query = resolve_commodity_query(elite_main, snapshot.commodity_query, player)
+    commodity_intel = build_commodity_intel_payload(
+        elite_main,
         commodity_query,
-        filters,
-        all_rows=all_rows,
-        player_position=player_position,
-        owned_permits=owned_permits,
+        route_request,
     )
 
     mission_payload = snapshot.mission
     mission_query = commodity_query
-    mission_quantity = max(
-        1,
-        int(
-            player.get("cargo_capacity_override")
-            or player.get("cargo_capacity")
-            or filters.cargo_capacity
-            or 100
-        ),
-    )
+    mission_quantity = resolve_mission_quantity(None, player, filters)
     mission_target_system = None
     mission_target_station = None
     if mission_payload is not None:
@@ -84,15 +75,13 @@ def build_live_snapshot_payload(elite_main: Any, payload: Any | None = None) -> 
         mission_quantity = mission_payload.quantity
         mission_target_system = mission_payload.target_system
         mission_target_station = mission_payload.target_station
-    mission_intel = elite_main.build_mission_intel(
+    mission_intel = build_mission_intel_payload(
+        elite_main,
         mission_query,
         mission_quantity,
-        filters,
         target_system=mission_target_system,
         target_station=mission_target_station,
-        all_rows=all_rows,
-        player_position=player_position,
-        owned_permits=owned_permits,
+        route_request=route_request,
     )
     return {
         "dashboard": dashboard,
