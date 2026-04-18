@@ -4,6 +4,7 @@ from typing import Any
 
 from app.api_route_patch import patch_api_route
 from app.dashboard_api_service import build_dashboard_response
+from app.snapshot_cache_service import build_cached_live_snapshot_response
 
 
 def build_routes_response(elite_main: Any, route_request: Any | None = None) -> dict[str, Any]:
@@ -21,18 +22,7 @@ def build_live_snapshot_response(elite_main: Any, payload: Any | None = None) ->
     builder = getattr(elite_main, "build_live_snapshot_payload", None)
     if not callable(builder):
         raise RuntimeError("Aucun builder live snapshot disponible")
-    if payload is not None and getattr(payload, "commodity_query", None):
-        elite_main.repo.set_state(
-            "focus_commodity",
-            elite_main.normalize_commodity_symbol(payload.commodity_query) or payload.commodity_query,
-        )
-    mission_payload = getattr(payload, "mission", None)
-    if mission_payload is not None and getattr(mission_payload, "commodity_query", None):
-        elite_main.repo.set_state(
-            "mission_commodity",
-            elite_main.normalize_commodity_symbol(mission_payload.commodity_query) or mission_payload.commodity_query,
-        )
-    return builder(payload)
+    return build_cached_live_snapshot_response(elite_main, payload, builder)
 
 
 def build_commodity_intel_response(
