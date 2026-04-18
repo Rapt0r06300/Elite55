@@ -3,19 +3,11 @@ from __future__ import annotations
 from typing import Any
 
 from app.route_engine import RouteContext, ensure_route_context
-
-
-DEFAULT_COMMODITY_QUERY = "gold"
+from app.trade_query_service import resolve_focus_commodity_query
 
 
 def resolve_commodity_query(elite_main: Any, explicit_query: str | None = None, player: dict[str, Any] | None = None) -> str:
-    query = explicit_query
-    if query is None and player is not None:
-        query = player.get("focus_commodity")
-    if query is None:
-        query = elite_main.repo.get_state("focus_commodity")
-    query = str(query or "").strip().lower()
-    return query or DEFAULT_COMMODITY_QUERY
+    return resolve_focus_commodity_query(elite_main, explicit_query, player)
 
 
 def build_commodity_intel_payload(
