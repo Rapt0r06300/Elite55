@@ -183,6 +183,41 @@ def build_ranked_quick_trade(
     return payload
 
 
+def build_ranked_analysis_payload(
+    *,
+    routes: list[dict[str, Any]] | None,
+    loops: list[dict[str, Any]] | None,
+    mode: str | None,
+    player: dict[str, Any] | None,
+    select_route_views: Callable[[list[dict[str, Any]], dict[str, Any] | None], dict[str, Any]],
+    decision_cards: dict[str, Any] | None = None,
+    quick_trade: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    selection = build_route_selection_payload(routes, loops, mode)
+    return {
+        "ranking_mode": selection["ranking_mode"],
+        "routes": selection["routes"],
+        "loops": selection["loops"],
+        "route_views": build_ranked_route_views(
+            selection["routes"],
+            mode=selection["ranking_mode"],
+            player=player,
+            select_route_views=select_route_views,
+        ),
+        "decision_cards": build_ranked_decision_cards(
+            decision_cards,
+            routes=selection["routes"],
+            loops=selection["loops"],
+            mode=selection["ranking_mode"],
+        ),
+        "quick_trade": build_ranked_quick_trade(
+            quick_trade,
+            routes=selection["routes"],
+            mode=selection["ranking_mode"],
+        ),
+    }
+
+
 def route_context_payload(context: RouteContext) -> dict[str, Any]:
     return {
         "request": context.request,
