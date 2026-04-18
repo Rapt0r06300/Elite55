@@ -3,10 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.route_engine import RouteContext, ensure_route_context
-
-
-DEFAULT_MISSION_QUERY = "gold"
-DEFAULT_MISSION_QUANTITY = 100
+from app.trade_query_service import resolve_focus_commodity_query, resolve_mission_quantity
 
 
 def resolve_mission_query(
@@ -14,33 +11,7 @@ def resolve_mission_query(
     explicit_query: str | None = None,
     player: dict[str, Any] | None = None,
 ) -> str:
-    query = explicit_query
-    if query is None and player is not None:
-        query = player.get("focus_commodity")
-    if query is None:
-        query = elite_main.repo.get_state("focus_commodity")
-    query = str(query or "").strip().lower()
-    return query or DEFAULT_MISSION_QUERY
-
-
-def resolve_mission_quantity(
-    explicit_quantity: int | None = None,
-    player: dict[str, Any] | None = None,
-    filters: Any | None = None,
-) -> int:
-    if explicit_quantity is not None:
-        return max(1, int(explicit_quantity))
-    values = [
-        (player or {}).get("cargo_capacity_override"),
-        (player or {}).get("cargo_capacity"),
-        getattr(filters, "cargo_capacity", None),
-        DEFAULT_MISSION_QUANTITY,
-    ]
-    for value in values:
-        if value is None:
-            continue
-        return max(1, int(value))
-    return DEFAULT_MISSION_QUANTITY
+    return resolve_focus_commodity_query(elite_main, explicit_query, player)
 
 
 def build_mission_intel_payload(
