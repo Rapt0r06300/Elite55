@@ -1,7 +1,8 @@
 (function () {
-  const SNAPSHOT_COOLDOWN_MS = 120;
+  const SNAPSHOT_COOLDOWN_MS = 180;
   let coordinatedSnapshotPromise = null;
   let coordinatedSnapshotStartedAt = 0;
+  let snapshotInFlight = false;
 
   const originalLoadLiveSnapshot = loadLiveSnapshot;
   const originalLoadCommodityIntel = loadCommodityIntel;
@@ -24,11 +25,11 @@
   }
 
   function shouldCoordinateCommodityRefresh() {
-    return Boolean(activeCommodityQuery());
+    return Boolean(activeCommodityQuery()) && !snapshotInFlight;
   }
 
   function shouldCoordinateMissionRefresh() {
-    return Boolean(activeCommodityQuery() || activeMissionQuery());
+    return Boolean(activeCommodityQuery() || activeMissionQuery()) && !snapshotInFlight;
   }
 
   async function coordinatedSnapshot({ silent = true, useFormValues = true } = {}) {
@@ -37,12 +38,14 @@
       return coordinatedSnapshotPromise;
     }
     coordinatedSnapshotStartedAt = now;
+    snapshotInFlight = true;
     coordinatedSnapshotPromise = originalLoadLiveSnapshot({ silent, useFormValues, applyFormDefaults: false })
       .catch(error => {
         console.error("coordinated-snapshot", error);
         throw error;
       })
       .finally(() => {
+        snapshotInFlight = false;
         window.setTimeout(() => {
           coordinatedSnapshotPromise = null;
         }, SNAPSHOT_COOLDOWN_MS);
@@ -69,20 +72,22 @@
   };
 
   refreshDashboardFull = async function () {
+    if (snapshotInFlight && coordinatedSnapshotPromise) return coordinatedSnapshotPromise;
     return coordinatedSnapshot({ silent: true, useFormValues: true });
   };
 
   loadLocalPulse = async function (options = {}) {
-    if (coordinatedSnapshotPromise) return null;
+    if (snapshotInFlight || coordinatedSnapshotPromise) return null;
     return originalLoadLocalPulse(options);
   };
 
   refreshDashboardLive = async function () {
-    if (coordinatedSnapshotPromise) return null;
+    if (snapshotInFlight || coordinatedSnapshotPromise) return null;
     return originalRefreshDashboardLive();
   };
 
   window.addEventListener("beforeunload", () => {
     coordinatedSnapshotPromise = null;
+    snapshotInFlight = false;
   });
 })();
