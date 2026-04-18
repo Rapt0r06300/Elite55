@@ -32,6 +32,7 @@ except Exception as error:
     _log_bootstrap_error("import app.main", error)
 else:
     _install_step("helpers coeur", "app.core_runtime_service.install_core_runtime_service_patches", elite_main)
+    _install_step("journal catalogue", "app.journal_catalog_service.install_journal_catalog_service_patches", elite_main)
     _install_step("correspondance texte", "app.search_match_service.install_search_match_service_patches", elite_main)
     _install_step("moteur suggestions", "app.suggestion_engine_service.install_suggestion_engine_service_patches", elite_main)
     _install_step("config trader", "app.trade_config_service.install_trade_config_service_patches", elite_main)
@@ -46,6 +47,7 @@ else:
     _install_step("recommandations trader", "app.trade_recommendation_service.install_trade_recommendation_service_patches", elite_main)
     _install_step("moteur dashboard", "app.trade_dashboard_engine_service.install_trade_dashboard_engine_service_patches", elite_main)
     _install_step("moteur intel trader", "app.trade_intel_engine_service.install_trade_intel_engine_service_patches", elite_main)
+    _install_step("graine de fond", "app.background_seed_service.install_background_seed_service_patches", elite_main)
     _install_step("classement backend", "app.trade_ranking.install_backend_ranking_patches", elite_main)
     _install_step("cache live", "app.live_snapshot_backend.install_live_snapshot_backend_patches", elite_main)
     _install_step("service live", "app.live_snapshot_service.install_live_snapshot_service_patches", elite_main)
