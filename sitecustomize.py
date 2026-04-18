@@ -41,6 +41,7 @@ else:
     _install_step("navigation et combat", "app.nav_combat_service.install_nav_combat_service_patches", elite_main)
     _install_step("service etat", "app.engine_state_service.install_engine_state_service_patches", elite_main)
     _install_step("lignes trader", "app.trade_rows_service.install_trade_rows_service_patches", elite_main)
+    _install_step("flux trader", "app.trade_flow_service.install_trade_flow_service_patches", elite_main)
     _install_step("scoring trader", "app.trade_scoring_service.install_trade_scoring_service_patches", elite_main)
     _install_step("recommandations trader", "app.trade_recommendation_service.install_trade_recommendation_service_patches", elite_main)
     _install_step("classement backend", "app.trade_ranking.install_backend_ranking_patches", elite_main)
